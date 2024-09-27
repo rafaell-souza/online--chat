@@ -8,8 +8,46 @@ datasource db {
 }
 
 model User {
-  id String @unique @db.VarChar(36)
-  name String @db.VarChar(55)
-  email String @unique @db.VarChar(100)
+  id       String @unique @db.VarChar(36)
+  name     String @db.VarChar(55)
+  email    String @unique @db.VarChar(100)
   password String @db.VarChar(70)
+
+  chat Chat?
+  message Message[]
+}
+
+model BlackToken {
+  id    Int    @id @default(autoincrement())
+  token String @unique @db.VarChar(500)
+}
+
+enum status {
+  full
+  open
+}
+
+model Chat {
+  id          Int    @id @default(autoincrement())
+  name        String @db.VarChar(55)
+  description String @db.Text
+  language    String @db.VarChar(30)
+  capacity    Int
+  status      status
+
+  host   User   @relation(fields: [hostId], references: [id])
+  hostId String @unique @db.VarChar(36)
+
+  messages Message[]
+}
+
+model Message {
+  id   Int    @id @default(autoincrement())
+  text String @db.Text
+
+  chat   Chat @relation(fields: [chatId], references: [id])
+  chatId Int
+
+  user   User @relation(fields: [userId], references: [id])
+  userId String @db.VarChar(36)
 }

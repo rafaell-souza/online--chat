@@ -21,4 +21,16 @@ export default class UserCases {
             },
         });
     }
+
+    async getUserById(id: string) {
+        return prisma.user.findUnique({
+            where: {
+                id: id,
+            },
+            select: {
+                id: true,
+                name: true,
+            }
+        });
+    }
 }

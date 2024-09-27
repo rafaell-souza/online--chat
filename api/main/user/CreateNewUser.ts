@@ -1,6 +1,6 @@
 import "dotenv/config";
 import { Request, Response } from "express";
-import { BadRequest } from "../CustomErrors/exceptions";
+import { BadRequest, Conflict } from "../CustomErrors/exceptions";
 import INewUser from "../interfaces/INewUser";
 import UserCases from "../UseCases/user"
 import jwt from "jsonwebtoken";
@@ -21,7 +21,7 @@ export default class CreateNewUser {
 
         const isUserRegistered = await new UserCases().checkEmail(email.toLowerCase());
         
-        if (isUserRegistered) throw new BadRequest("User already registered");
+        if (isUserRegistered) throw new Conflict("User already registered");
 
         data.password = await bcrypt.hash(password, 10);
         data.email = email.toLowerCase()
