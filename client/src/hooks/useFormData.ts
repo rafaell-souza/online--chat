@@ -2,6 +2,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { FieldValues, useForm } from "react-hook-form";
 import * as z from "zod";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const useFormData = <T extends FieldValues>(
     schema: z.ZodType<T>,
@@ -16,7 +17,10 @@ const useFormData = <T extends FieldValues>(
         formState: { errors },
     } = useForm<T>({
         resolver: zodResolver(schema),
+        mode: "onSubmit",
     });
+
+    const navigate = useNavigate();
 
     const handleSubmitForm = handleSubmit(async (data: T) => {
         setLoading(true);
@@ -38,6 +42,7 @@ const useFormData = <T extends FieldValues>(
                 const data = await response.json();
                 localStorage.setItem("token", data.token);
                 setLoading(false);
+                navigate("/");
             }
         }
         catch (err) {
