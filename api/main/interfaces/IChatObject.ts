@@ -16,7 +16,7 @@ enum Language {
 export default interface IChatObject {
     name: string;
     description: string;
-    capacity: string;
+    capacity: number;
     language: Language;
     token: string;
 }
