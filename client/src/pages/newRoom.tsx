@@ -16,28 +16,6 @@ const NewRoom = () => {
         resolver: zodResolver(chatSchema)
     });
     const navigate = useNavigate()
-    const [error, setError] = useState(false)
-
-    const socket = io("http://localhost:9000", {
-        auth: {
-            token: localStorage.getItem("token")
-        }
-    })
-
-    socket.on("connect_error", (error) => {
-        setError(true)
-        console.log(error)
-    });
-
-    socket.on("create-room-error", (error) => {
-        console.log(error)
-    })
-
-    const handleSubmitForm = handleSubmit((data) => {
-        data.token = localStorage.getItem("token")
-        socket.emit("create-room", data)
-        navigate("/chat")
-    })
 
     return (
         <>
@@ -46,19 +24,9 @@ const NewRoom = () => {
 
                 <section className="w-full text-gray-300 flex flex-col relative justify-start">
 
-                    {
-                        error && <div className="absolute backdrop-blur-lg w-full h-full flex justify-center items-center">
-                            <div className="bg-gray-800 px-4 py-2 rounded flex flex-col items-center">
-                                <p>You need to be logged in to create a chat room.</p>
-                                <Link to="/login" className="text-blue-400 w-full text-center h-7 rounded px-4 bg-gray-700 hover:bg-gray-800 hover:border hover:border-gray-700 mt-1">login</Link>
-                            </div>
-                        </div>
-                    }
-
                     <form
-                        onSubmit={handleSubmitForm}
-                        className="flex mt-8 flex-col px-8 py-4">
-                        <h1 className="text-2xl mb-5">Create chat room.</h1>
+                        className="flex mt-8 flex-col px-4">
+                        <h1 className="text-2xl mb-7">Create chat room.</h1>
 
 
                         <div className="flex gap-x-8">

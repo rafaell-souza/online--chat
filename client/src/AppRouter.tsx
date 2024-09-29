@@ -11,7 +11,7 @@ const AppRoutes = () => {
             <Routes>
                 <Route path="/" element={<Explore />} />
                 <Route path="/new-room" element={<NewRoom />} />
-                <Route path="/chat" element={<Chat />} />
+                <Route path="/chat/:chatid" element={<Chat />} />
                 <Route path="/register" element={< Register /> } />
                 <Route path="/login" element={ < Login /> } />
             </Routes>
