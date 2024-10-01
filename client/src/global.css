@@ -5,3 +5,7 @@
 body {
     background-color: rgb(1, 0, 13);
 }
+
+.scrollbar {
+    scrollbar-width: none;
+}

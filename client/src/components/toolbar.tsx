@@ -1,35 +1,33 @@
 import { FaUserCircle } from "react-icons/fa";
 import { Link } from "react-router-dom";
-import { useState, useEffect } from "react";
-import { io } from "socket.io-client";
+import { useContext } from "react";
+import { userData } from "../context/userData";
+import { useEffect } from "react";
 
 const Toolbar = ({ isSelected }: { isSelected: number }) => {
-    const [currentChat, setCurrentChat] = useState<string>("")
-    const [error, setError] = useState<boolean>(true)
+    const { user, setUser } = useContext(userData);
 
     useEffect(() => {
-        const socket = io("http://localhost:9000", {
-            auth: {
-                token: localStorage.getItem("token")
-            }
-        })
-
-        socket.on("connect_error", () => {
-            setError(true)
-        })
-
-        socket.emit("get-chat", localStorage.getItem("token"))
-        socket.on("get-chat-success", (chatId: string) => setCurrentChat(chatId))
-        socket.on("get-chat-error", () => setError(true))
-
-    }, [])
+        async function fetchUser() {
+            const response = await fetch("http://localhost:9000/api/user", {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${localStorage.getItem("token")}`
+                }
+            });
+            const data = await response.json();
+            setUser(data);
+        }
+        fetchUser();
+    }, []);
 
     return (
         <section className="border-r border-zinc-900 pt-4 px-2 flex flex-col gap-y-1 bg-black bg-opacity-10 w-48 h-screen">
 
             <div className="flex items-center mt-4 flex-col">
                 <FaUserCircle className="text-4xl text-white" />
-                <p className="text-gray-500 text-sm mt-1 text-center">John Doe</p>
+                <p className="text-gray-500 text-sm mt-1 text-center">{user.name}</p>
             </div>
 
             <Link to="/new-room"
@@ -42,8 +40,8 @@ const Toolbar = ({ isSelected }: { isSelected: number }) => {
                 EXPLORE
             </Link>
 
-            <Link to={`/chat/${currentChat}`}
-                className={`border text-white ${error ? "pointer-events-none opacity-50" : ""} text-xs flex items-center justify-center border-gray-900 w-full h-7 ${isSelected === 2 ? "bg-gray-900" : ""}`}>
+            <Link to={`/chat/`}
+                className={`border text-white text-xs flex items-center justify-center border-gray-900 w-full h-7 ${isSelected === 2 ? "bg-gray-900" : ""}`}>
                 CHAT
             </Link>
 

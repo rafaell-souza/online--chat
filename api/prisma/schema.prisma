@@ -46,6 +46,7 @@ model Chat {
 model Message {
   id   Int    @id @default(autoincrement())
   text String @db.Text
+  date DateTime @default(now())
 
   chat   Chat @relation(fields: [chatId], references: [id])
   chatId String @db.VarChar(36)
@@ -56,6 +57,7 @@ model Message {
 
 model ChatUser {
   id    Int @id @default(autoincrement())
+  
   user  User @relation(fields: [userId], references: [id])
   userId String @db.VarChar(36) @unique
 

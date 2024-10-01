@@ -6,6 +6,7 @@ import IChatObject from "../interfaces/IChatObject";
 import "dotenv/config";
 import chatSchema from "../schemas/Chat";
 import { BadRequest } from "../CustomErrors/exceptions";
+import ChatCases from "../UseCases/chat";
 
 export default class CreateChat {
     static async execute (
@@ -23,40 +24,8 @@ export default class CreateChat {
 
         if (error) throw new BadRequest(error.errors[0].message);
 
-        const hasChat = await prisma.chat.findFirst({ where: { hostId: user.id } });
-        if (hasChat) {
-            const usersInChat =  await prisma.chatUser.count({ where: { chatId: hasChat.id } });
+        const chatId = await ChatCases.createChat(chatData, user.id);
 
-            if (usersInChat > 1) {
-                const nextHost = await prisma.chatUser.findFirst({ 
-                    where: { 
-                        chatId: hasChat.id, userId: { not: user.id } 
-                    } 
-                });
-
-                await prisma.chat.update({
-                    where: { id: hasChat.id },
-                    data: { hostId: nextHost!.userId }
-                });
-            }
-
-            else {
-                await prisma.chat.delete({ where: { id: hasChat.id } });
-            }
-        }
-
-        const chat = await prisma.chat.create({
-            data: {
-                id: uuidv4(),
-                name: name,
-                description: description,
-                capacity: Number(capacity),
-                status: "open",
-                hostId: user.id,
-                language: language,
-            }
-        });
-
-        return res.status(201).json(chat);
+        return res.status(201).json({ chatId });
     }
 }

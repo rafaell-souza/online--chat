@@ -1,21 +1,31 @@
 import Toolbar from "../components/toolbar";
-import { io } from "socket.io-client"
 import { useForm } from "react-hook-form"
 import chatSchema from "../schemas/chat";
-import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 
 const NewRoom = () => {
     const {
         register,
         handleSubmit,
-        formState: { errors }
     } = useForm({
         resolver: zodResolver(chatSchema)
     });
     const navigate = useNavigate()
+
+    const handleSubmitForm = handleSubmit(async (data) => {
+        const response = await fetch("http://localhost:9000/api/chat", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${localStorage.getItem("token")}`
+            },
+            body: JSON.stringify(data)
+        })
+
+        const newChat = await response.json()
+        navigate(`/chat/${newChat.chatId}`)
+    })
 
     return (
         <>
@@ -25,6 +35,7 @@ const NewRoom = () => {
                 <section className="w-full text-gray-300 flex flex-col relative justify-start">
 
                     <form
+                        onSubmit={handleSubmitForm}
                         className="flex mt-8 flex-col px-4">
                         <h1 className="text-2xl mb-7">Create chat room.</h1>
 
