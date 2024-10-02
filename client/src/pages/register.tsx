@@ -104,7 +104,8 @@ const Register = () => {
                     }
                 </div>
 
-                <button className="bg-blue-900 flex hover:bg-blue-950 justify-center text-white mt-4 h-8 items-center rounded">
+                <button 
+                className="bg-blue-900 flex hover:bg-blue-950 justify-center text-white mt-4 h-8 items-center rounded">
                     {
                         loading ? <ImSpinner9 className="animate-spin" /> : "Register"
                     }

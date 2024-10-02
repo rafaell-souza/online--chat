@@ -36,7 +36,7 @@ model Chat {
   capacity    Int
   status      status
 
-  host   User   @relation(fields: [hostId], references: [id])
+  host   User   @relation(fields: [hostId], references: [id], onDelete: Cascade)
   hostId String @unique @db.VarChar(36)
 
   messages Message[]
@@ -48,17 +48,17 @@ model Message {
   text String @db.Text
   date DateTime @default(now())
 
-  chat   Chat @relation(fields: [chatId], references: [id])
+  chat   Chat @relation(fields: [chatId], references: [id], onDelete: Cascade)
   chatId String @db.VarChar(36)
 
-  user   User @relation(fields: [userId], references: [id])
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId String @db.VarChar(36)
 }
 
 model ChatUser {
   id    Int @id @default(autoincrement())
   
-  user  User @relation(fields: [userId], references: [id])
+  user  User @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId String @db.VarChar(36) @unique
 
   chat   Chat @relation(fields: [chatId], references: [id], onDelete: Cascade)

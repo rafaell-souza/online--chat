@@ -41,13 +41,22 @@ const Chat = () => {
 
         socket.on("chat-data", (data: ChatData) => {
             setMessages(data.messages);
+        
+            if (data.users.length > 1) {
+                const myIndex = data.users.findIndex(u => u.id === user.id);
+        
+                [data.users[0], data.users[myIndex]] = [data.users[myIndex], data.users[0]];
+        
+                setUsersInChat(data.users);
+            }
+        
             setUsersInChat(data.users);
         });
 
         socket.on("new-message", (message: Message) => {
             setMessages(prev => [...prev, message]);
         });
-        
+
         return () => {
             socket.off("chat-data");
             socket.off("new-message");
@@ -81,10 +90,10 @@ const Chat = () => {
                             {
                                 messages.map((message, index) => {
                                     return (
-                                        <div 
-                                        ref={index === messages.length - 1 ? lastMessage : null}
-                                        key={index} 
-                                        className="flex gap-x-2 mt-3">
+                                        <div
+                                            ref={index === messages.length - 1 ? lastMessage : null}
+                                            key={index}
+                                            className="flex gap-x-2 mt-3">
                                             {
                                                 <>
                                                     <FaUserCircle className="text-3xl text-white" />
@@ -122,11 +131,11 @@ const Chat = () => {
                         <div className="bg-gray-800 text-white text-sm rounded px-2 py-1">Users</div>
                         <div className="overflow-y-auto h-full">
                             {
-                                usersinChat.map((user, index) => {
+                                usersinChat.map((userChat, index) => {
                                     return (
-                                        <div key={index} className="flex gap-x-2 mt-2">
+                                        <div key={index} className={`flex px-2 py-1 gap-x-2 mt-2 ${userChat.id === user.id ? 'bg-gray-900 rounded' : ""}`}>
                                             <FaUserCircle className="text-xl text-white" />
-                                            <span className="text-white text-xs">{user.name}</span>
+                                            <span className="text-white text-xs">{userChat.name}</span>
                                         </div>
                                     )
                                 })

@@ -24,7 +24,7 @@ const NewRoom = () => {
         })
 
         const newChat = await response.json()
-        navigate(`/chat/${newChat.chatId}`)
+        navigate(`/chat/${newChat}`)
     })
 
     return (

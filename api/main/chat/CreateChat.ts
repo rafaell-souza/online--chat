@@ -1,7 +1,5 @@
-import prisma from "../../prisma/prisma";
 import { Request, Response } from "express";
 import jwt from "jsonwebtoken";
-import { v4 as uuidv4 } from "uuid";
 import IChatObject from "../interfaces/IChatObject";
 import "dotenv/config";
 import chatSchema from "../schemas/Chat";
@@ -14,18 +12,31 @@ export default class CreateChat {
         res: Response
     ) {
         const { name, description, capacity, language }: IChatObject = req.body;
-        const token = req.headers!.authorization!.split(" ")[1];
 
+        const token = req.headers!.authorization!.split(" ")[1];
         const user = jwt.decode(token) as { id: string };
 
         const chatData = { name, description, capacity, language };
 
         const { error } = chatSchema.safeParse(chatData);
-
         if (error) throw new BadRequest(error.errors[0].message);
 
-        const chatId = await ChatCases.createChat(chatData, user.id);
+        const chatCases = new ChatCases(user.id);
 
-        return res.status(201).json({ chatId });
-    }
+        const userChat = await chatCases.findUserChat();
+        
+        if (userChat) {
+            await chatCases.removeUserFromChat(userChat);
+
+            const countUsersInChat = await chatCases.countUsersInChat(userChat);
+
+            if (countUsersInChat === 0) {
+                await chatCases.deleteUserChat();
+            } else {
+                await chatCases.setNewHost(userChat);
+            }
+        }
+        const newChatId = await chatCases.createChat(chatData);
+        return res.status(201).json(newChatId);
+    }   
 }

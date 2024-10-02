@@ -3,89 +3,120 @@ import IChatObject from "../interfaces/IChatObject";
 import { v4 as uuidv4 } from "uuid";
 
 export default class ChatCases {
-    static async createChat(data: IChatObject, userId: string) {
+    userid: string;
 
-        const hasChat = await prisma.chat.findFirst({ where: { hostId: userId } });
-        if (hasChat) {
-            const usersInChat = await prisma.chatUser.count({ where: { chatId: hasChat.id } });
+    constructor(userid: string) {
+        this.userid = userid;
+    }
 
-            if (usersInChat > 1) {
-                const nextHost = await prisma.chatUser.findFirst({
-                    where: {
-                        chatId: hasChat.id, userId: { not: userId }
-                    }
-                });
+    async findUserChat() {
+        const chat = await prisma.chat.findUnique({
+            where: { hostId: this.userid }
+        })
 
-                await prisma.chat.update({
-                    where: { id: hasChat.id },
-                    data: { hostId: nextHost!.userId }
-                });
+        return chat?.id
+    }
+
+    async deleteUserChat() {
+        await prisma.chat.delete({
+            where: { hostId: this.userid },
+        })
+    }
+
+    async countUsersInChat(chatid: string) {
+        return await prisma.chatUser.count({
+            where: { chatId: chatid }
+        })
+    }
+
+    async setNewHost(chatid: string) {
+        const nextHost = await prisma.chatUser.findFirst({
+            where: {
+                chatId: chatid,
+                userId: { not: this.userid }
             }
+        });
 
-            else {
-                await prisma.chat.delete({ where: { id: hasChat.id } });
+        await prisma.chat.update({
+            where: { id: chatid },
+            data: { hostId: nextHost!.userId }
+        })
+    }
+
+    async removeUserFromChat(chatid: string) {
+        const a = await prisma.chatUser.delete({
+            where: {
+                userId: this.userid,
+                chatId: chatid
             }
-        }
+        })  
+    }
+
+    async createChat(chatData: IChatObject) {
 
         const chat = await prisma.chat.create({
             data: {
                 id: uuidv4(),
-                name: data.name,
-                description: data.description,
-                capacity: Number(data.capacity),
+                name: chatData.name,
+                description: chatData.description,
+                capacity: Number(chatData.capacity),
                 status: "open",
-                hostId: userId,
-                language: data.language
+                hostId: this.userid,
+                language: chatData.language
             }
-        });
+        })
 
         return chat.id;
     }
 
-    static async joinChat(chatId: string, userId: string) {
-        const isAlreadyInChat = await prisma.chatUser.findFirst({
-            where: { userId: userId }
-        });
-
-        if (isAlreadyInChat && isAlreadyInChat.chatId === chatId) return;
-        if (isAlreadyInChat && isAlreadyInChat.chatId !== chatId) {
-            await prisma.chatUser.delete({ where: { userId: userId } });
-            const hasChat = await prisma.chat.findFirst({ where: { hostId: userId } });
-
-            if (hasChat) {
-                const usersInChat = await prisma.chatUser.count({ where: { chatId: hasChat.id } });
-
-                if (usersInChat > 1) {
-                    const nextHost = await prisma.chatUser.findFirst({
-                        where: {
-                            chatId: hasChat.id, userId: { not: userId }
-                        }
-                    });
-
-                    await prisma.chat.update({
-                        where: { id: hasChat.id },
-                        data: { hostId: nextHost!.userId }
-                    });
-                }
-
-                else {
-                    await prisma.chat.delete({ where: { id: hasChat.id } });
-                }
+    async isUserInChat() {
+        const chatUser = await prisma.chatUser.findFirst({
+            where: {
+                userId: this.userid,
             }
-        }
-
-
-        await prisma.chatUser.create({
-            data: {
-                chatId: chatId,
-                userId: userId
-            }
-        });
+        })
+        if (chatUser) return chatUser.chatId;
     }
 
-    static async getUsersInChat(chatId: string) {
+    async joinChat(chatid: string) {
+        const a = await prisma.chatUser.create({
+            data: {
+                userId: this.userid,
+                chatId: chatid
+            }
+        })
+    }
+
+    async findMessages(chatid: string) {
+        const messages = await prisma.message.findMany({
+            where: { chatId: chatid },
+            select: {
+                text: true,
+                date: true,
+                user: {
+                    select: {
+                        id: true,
+                        name: true
+                    }
+                }
+            }
+        })
+
+        const data = messages.map(message => {
+            return {
+                text: message.text,
+                date: message.date,
+                userid: message.user.id,
+                name: message.user.name
+            }
+        })
+
+        return data;
+    }
+
+    async findUsersInChat(chatid: string) {
         const users = await prisma.chatUser.findMany({
-            where: { chatId: chatId },
+            where: { chatId: chatid },
             select: {
                 user: {
                     select: {
@@ -94,62 +125,43 @@ export default class ChatCases {
                     }
                 }
             }
-        });
+        })
 
-        return users.map(chatUser => chatUser.user);
+        const data = users.map(user => {
+            return {
+                id: user.user.id,
+                name: user.user.name
+            }
+        })
+
+        return data;
     }
 
-    static async writeMessage(chatId: string, userId: string, text: string) {
+    async createMessage(chatid: string, text: string) {
         const message = await prisma.message.create({
             data: {
-                chatId: chatId,
-                userId: userId,
                 text: text,
-                date: new Date()
+                chatId: chatid,
+                userId: this.userid,
+                date: new Date(),
             },
             select: {
                 text: true,
                 date: true,
                 user: {
                     select: {
-                        name: true,
-                        id: true
+                        id: true,
+                        name: true
                     }
                 }
             }
         })
+
         return {
             text: message.text,
             date: message.date,
-            name: message.user.name,
-            userid: message.user.id
-        };
+            userid: this.userid,
+            name: message.user.name
+        }
     }
-
-    static async getMessages(chatId: string) {
-        const messages = await prisma.message.findMany({
-            where: { chatId: chatId },
-            select: {
-                text: true,
-                date: true,
-                user: {
-                    select: {
-                        name: true,
-                        id: true
-                    }
-                }
-            }
-        });
-        const data = messages.map(message => {
-            return {
-                text: message.text,
-                date: message.date,
-                name: message.user.name,
-                userid: message.user.id
-            }
-        })
-
-        return data;
-    }   
-
 }
