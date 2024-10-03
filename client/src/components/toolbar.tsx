@@ -30,19 +30,24 @@ const Toolbar = ({ isSelected }: { isSelected: number }) => {
                 <p className="text-gray-500 text-sm mt-1 text-center">{user.name}</p>
             </div>
 
-            <Link to="/new-room"
-                className={`border mt-5 text-white text-xs flex items-center justify-center border-gray-900 w-full h-7 ${isSelected === 1 ? "bg-gray-900" : ""}`}>
-                NEW ROOM
-            </Link>
-
             <Link to={`/`}
-                className={`border text-white text-xs flex items-center justify-center border-gray-900 w-full h-7 ${isSelected === 0 ? "bg-gray-900" : ""}`}>
+                className={`border mt-6 text-white text-xs flex items-center justify-center border-gray-900 w-full h-7 ${isSelected === 0 ? "bg-gray-900" : ""}`}>
                 EXPLORE
+            </Link>
+            
+            <Link to="/new-room"
+                className={`border text-white text-xs flex items-center justify-center border-gray-900 w-full h-7 ${isSelected === 1 ? "bg-gray-900" : ""}`}>
+                NEW ROOM
             </Link>
 
             <Link to={`/chat/`}
                 className={`border text-white text-xs flex items-center justify-center border-gray-900 w-full h-7 ${isSelected === 2 ? "bg-gray-900" : ""}`}>
                 CHAT
+            </Link>
+
+            <Link to="search" 
+                className={`border text-white text-xs flex items-center justify-center border-gray-900 w-full h-7 ${isSelected === 3 ? "bg-gray-900" : ""}`}>
+                SEARCH
             </Link>
 
         </section>

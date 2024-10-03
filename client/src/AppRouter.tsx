@@ -4,6 +4,7 @@ import NewRoom from './pages/newRoom';
 import Chat from './pages/chat';
 import Register from './pages/register';
 import Login from './pages/login';
+import Search from './pages/search';
 
 const AppRoutes = () => {
     return (
@@ -14,6 +15,7 @@ const AppRoutes = () => {
                 <Route path="/chat/:chatid" element={<Chat />} />
                 <Route path="/register" element={< Register /> } />
                 <Route path="/login" element={ < Login /> } />
+                <Route path="/search" element={ < Search /> } />
             </Routes>
         </BrowserRouter>
     )

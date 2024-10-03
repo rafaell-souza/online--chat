@@ -240,7 +240,7 @@ export default class ChatCases {
 
     async searchChat(query: string, by: string) {
         if (by === "host") { 
-            const foundHost = await prisma.chat.findFirst({
+            const foundHost = await prisma.chat.findMany({
                 where: {
                     host: {
                         name: {contains: query}
@@ -262,19 +262,22 @@ export default class ChatCases {
             })
 
             if (foundHost) {
-                return {
-                    id: foundHost.id,
-                    name: foundHost.name,
-                    description: foundHost.description,
-                    capacity: foundHost.capacity,
-                    status: foundHost.status,
-                    language: foundHost.language,
-                    host: foundHost.host.name
-                }
+                const data = foundHost.map(chat => {
+                    return {
+                        id: chat.id,
+                        name: chat.name,
+                        description: chat.description,
+                        capacity: chat.capacity,
+                        status: chat.status,
+                        language: chat.language,
+                        host: chat.host.name
+                    }
+                })
+                return data;
             }
             
         } else if (by === "name") {
-            const foundHost = await prisma.chat.findFirst({
+            const foundHost = await prisma.chat.findMany({
                 where: {
                     name: {contains: query}
                 },
@@ -294,15 +297,18 @@ export default class ChatCases {
             })
 
             if (foundHost) {
-                return {
-                    id: foundHost.id,
-                    name: foundHost.name,
-                    description: foundHost.description,
-                    capacity: foundHost.capacity,
-                    status: foundHost.status,
-                    language: foundHost.language,
-                    host: foundHost.host.name
-                }
+                const data = foundHost.map(chat => {
+                    return {
+                        id: chat.id,
+                        name: chat.name,
+                        description: chat.description,
+                        capacity: chat.capacity,
+                        status: chat.status,
+                        language: chat.language,
+                        host: chat.host.name
+                    }
+                })
+                return data;
             }
         }
     }

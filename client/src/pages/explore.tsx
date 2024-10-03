@@ -1,7 +1,4 @@
 import Toolbar from "../components/toolbar";
-import { useForm } from "react-hook-form";
-import searchSchema from "../schemas/search";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useState, useEffect, useContext } from "react";
 import { userData } from "../context/userData";
 import { Link } from "react-router-dom";
@@ -28,24 +25,11 @@ type ChatData = {
 const Explore = () => {
     const [chats, setChats] = useState<Chat[]>([]);
     const [userActiveChat, setUserActiveChat] = useState<Chat>();
-    const [loading, setLoading] = useState(false);
 
     const { user } = useContext(userData);
 
-    const {
-        register,
-        handleSubmit,
-    } = useForm({
-        resolver: zodResolver(searchSchema),
-    });
-
-    const handleSubmitForm = handleSubmit((data) => {
-        console.log(data);
-    })
-
     useEffect(() => {
         if (user.id) {
-            setLoading(true);
         const fetchChats = async () => {
             const response = await fetch(`http://localhost:9000/api/chat/${user.id}`, {
                 method: "GET",
@@ -59,7 +43,6 @@ const Explore = () => {
             const data: ChatData = await response.json();
             setChats(data.chats);
             setUserActiveChat(data.userActiveChat);
-            setLoading(false);
         }
 
         fetchChats();
@@ -73,26 +56,6 @@ const Explore = () => {
 
                 <section className="w-full px-4 py-6 flex flex-col">
 
-                    <div className="w-full">
-                        <form className="flex gap-x-1" onSubmit={handleSubmitForm}>
-                            <input
-                                type="text"
-                                className="w-80 border border-gray-800 outline-none rounded bg-gray-900 text-white px-2 h-7"
-                                {...register("query")}
-                            />
-
-                            <select
-                                className="rounded  bg-gray-800 text-white outline-none"
-                                {...register("by")}
-                            >
-                                <option value="name">By name</option>
-                                <option value="host">By host</option>
-                            </select>
-
-                            <button type="submit" className="border border-gray-700 bg-gray-800 px-6 rounded text-white hover:bg-gray-700">Search</button>
-                        </form>
-                    </div>
-
                     {
                         userActiveChat && (
                             <section className="w-full mt-6">
@@ -100,10 +63,10 @@ const Explore = () => {
                                 <div className="mt-1 flex flex-col">
                                     {
                                         userActiveChat && (
-                                            <div className="border flex bg-gray-900 rounded border-gray-700 p-1 gap-x-1">
+                                            <div className="border flex bg-gray-900 rounded border-gray-700 p-1 gap-x-1 items-center">
                                                 <div className="h-full w-full flex flex-col">
-                                                    <h1 className="text-white">{userActiveChat.name}</h1>
-                                                    <p className="text-gray-400">{userActiveChat.description}</p>
+                                                    <h1 className="text-white text-xl">{userActiveChat.name}</h1>
+                                                    <p className="text-gray-400 text-xs">{userActiveChat.description}</p>
                                                 </div>
 
                                                 <div className="w-full h-full flex flex-col">
