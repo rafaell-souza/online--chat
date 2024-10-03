@@ -49,7 +49,7 @@ export default class ChatCases {
                 userId: this.userid,
                 chatId: chatid
             }
-        })  
+        })
     }
 
     async createChat(chatData: IChatObject) {
@@ -162,6 +162,148 @@ export default class ChatCases {
             date: message.date,
             userid: this.userid,
             name: message.user.name
+        }
+    }
+
+    async getChats() {
+        const chats = await prisma.chat.findMany({
+            where: {
+                users: {
+                    none: {
+                        userId: this.userid
+                    }
+                }
+            },
+            select: {
+                id: true,
+                name: true,
+                description: true,
+                capacity: true,
+                status: true,
+                language: true,
+                host: {
+                    select: {
+                        name: true
+                    }
+                }
+            }
+        })  
+        if (chats) {
+            return chats.map(chat => {
+                return {
+                    id: chat.id,
+                    name: chat.name,
+                    description: chat.description,
+                    capacity: chat.capacity,
+                    status: chat.status,
+                    language: chat.language,
+                    host: chat.host.name
+                }
+            }
+        )}
+    }
+
+    async getUserActiveChat() {
+        const chat = await prisma.chatUser.findFirst({
+            where: { userId: this.userid },
+            select: {
+                chat: {
+                    select: {
+                        id: true,
+                        name: true,
+                        description: true,
+                        capacity: true,
+                        status: true,
+                        language: true,
+                        host: {
+                            select: {
+                                name: true
+                            }
+                        }
+                    }
+                }
+            }
+        })
+
+        if (chat) {
+            return {
+                id: chat.chat.id,
+                name: chat.chat.name,
+                description: chat.chat.description,
+                capacity: chat.chat.capacity,
+                status: chat.chat.status,
+                language: chat.chat.language,
+                host: chat.chat.host.name
+            }
+        }
+    }
+
+    async searchChat(query: string, by: string) {
+        if (by === "host") { 
+            const foundHost = await prisma.chat.findFirst({
+                where: {
+                    host: {
+                        name: {contains: query}
+                    }
+                },
+                select: {
+                    id: true,
+                    name: true,
+                    description: true,
+                    capacity: true,
+                    status: true,
+                    language: true,
+                    host: {
+                        select: {
+                            name: true
+                        }
+                    }
+                }
+            })
+
+            if (foundHost) {
+                return {
+                    id: foundHost.id,
+                    name: foundHost.name,
+                    description: foundHost.description,
+                    capacity: foundHost.capacity,
+                    status: foundHost.status,
+                    language: foundHost.language,
+                    host: foundHost.host.name
+                }
+            }
+            
+        } else if (by === "name") {
+            const foundHost = await prisma.chat.findFirst({
+                where: {
+                    name: {contains: query}
+                },
+                select: {
+                    id: true,
+                    name: true,
+                    description: true,
+                    capacity: true,
+                    status: true,
+                    language: true,
+                    host: {
+                        select: {
+                            name: true
+                        }
+                    }
+                }
+            })
+
+            if (foundHost) {
+                return {
+                    id: foundHost.id,
+                    name: foundHost.name,
+                    description: foundHost.description,
+                    capacity: foundHost.capacity,
+                    status: foundHost.status,
+                    language: foundHost.language,
+                    host: foundHost.host.name
+                }
+            }
         }
     }
 }
