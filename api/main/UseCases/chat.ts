@@ -9,6 +9,14 @@ export default class ChatCases {
         this.userid = userid;
     }
 
+    async findChat (chatid: string) {
+        const chat = await prisma.chat.findUnique({
+            where: { id: chatid }
+        })
+
+        return chat;
+    }
+
     async findUserChat() {
         const chat = await prisma.chat.findUnique({
             where: { hostId: this.userid }
@@ -43,10 +51,10 @@ export default class ChatCases {
         })
     }
 
-    async removeUserFromChat(chatid: string) {
+    async removeUserFromChat(chatid: string, userid?: string) {
         const a = await prisma.chatUser.delete({
             where: {
-                userId: this.userid,
+                userId: userid ? userid : this.userid,
                 chatId: chatid
             }
         })
@@ -311,5 +319,12 @@ export default class ChatCases {
                 return data;
             }
         }
+    }
+
+    async closeChat (chatid: string) {
+        await prisma.chat.update({
+            where: { id: chatid },
+            data: { status: "full" }
+        })
     }
 }

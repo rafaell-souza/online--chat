@@ -25,6 +25,7 @@ const Search = () => {
     const {
         register,
         handleSubmit,
+        resetField,
     } = useForm({
         resolver: zodResolver(searchSchema),
     });
@@ -44,14 +45,17 @@ const Search = () => {
                 }
                 else setSearchedData(data.chat);
             });
+            resetField("query")
     })
 
     return (
         <section className="flex h-screen w-full">
             <Toolbar isSelected={3} />
 
-            <div className="w-full border px-4 py-8 flex flex-col">
-                <form className="flex gap-x-1" onSubmit={handleSubmitForm}>
+            <div className="w-full px-4 py-8 flex flex-col">
+                <form className="flex gap-x-1" 
+                onSubmit={handleSubmitForm}
+                >
                     <input
                         type="text"
                         className="w-80 border border-gray-800 outline-none rounded bg-gray-900 text-white px-2 h-7"

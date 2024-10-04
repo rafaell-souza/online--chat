@@ -23,8 +23,9 @@ const NewRoom = () => {
             body: JSON.stringify(data)
         })
 
-        const newChat = await response.json()
-        navigate(`/chat/${newChat}`)
+        const newChat = await response.json() as { chatid: string, newToken: string };
+        localStorage.setItem("token", newChat.newToken)
+        navigate(`/chat/${newChat.chatid}`)
     })
 
     return (
@@ -59,7 +60,7 @@ const NewRoom = () => {
                                 <div className="flex gap-x-1 items-center mt-4">
                                     <label htmlFor="Participants">Participants</label>
                                     <input
-                                        type="number" min="1" max="50" defaultValue="1"
+                                        type="number" min="2" max="50" defaultValue="2"
                                         className="w-11 bg-gray-900 px-1 h-7 rounded outline-none"
                                         {...register("capacity")}
                                     />

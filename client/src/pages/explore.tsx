@@ -64,9 +64,9 @@ const Explore = () => {
                                     {
                                         userActiveChat && (
                                             <div className="border flex bg-gray-900 rounded border-gray-700 p-1 gap-x-1 items-center">
-                                                <div className="h-full w-full flex flex-col">
-                                                    <h1 className="text-white text-xl">{userActiveChat.name}</h1>
-                                                    <p className="text-gray-400 text-xs">{userActiveChat.description}</p>
+                                                <div className="h-full w-full px-2 flex flex-col">
+                                                    <h1 className="text-white mb-1">{userActiveChat.name}</h1>
+                                                    <p className="text-gray-400 w-96 break-words leading-none pr-3 text-sm">{userActiveChat.description}</p>
                                                 </div>
 
                                                 <div className="w-full h-full flex flex-col">
@@ -107,13 +107,13 @@ const Explore = () => {
                         chats.length > 0 && (
                             <section className="w-full mt-4">
                                 <h1 className="text-white">ACTIVE CHATS</h1>
-                                <div className="mt-1 flex flex-col h-44 overflow-y-auto">
+                                <div className="mt-1 flex flex-col h-44 gap-y-2 overflow-y-auto">
                                     {
                                         chats.map((chat) => (
-                                            <div key={chat.id} className="border flex bg-gray-900 rounded border-gray-700 p-1 gap-x-1">
-                                                <div className="h-full w-full flex flex-col">
-                                                    <h1 className="text-white">{chat.name}</h1>
-                                                    <p className="text-gray-400">{chat.description}</p>
+                                            <div key={chat.id} className="border flex bg-gray-900 rounded border-gray-700 p-1 gap-x-1 ">
+                                                <div className="h-full w-full px-2 flex flex-col">
+                                                    <h1 className="text-white mb-1">{chat.name}</h1>
+                                                    <p className="text-gray-400 w-96 break-words leading-none pr-3 text-sm">{chat.description}</p>
                                                 </div>
 
                                                 <div className="w-full h-full flex flex-col">
