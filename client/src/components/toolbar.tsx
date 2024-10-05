@@ -22,6 +22,8 @@ const Toolbar = ({ isSelected }: { isSelected: number }) => {
         fetchUser();
     }, []);
 
+    const chatid = localStorage.getItem("chatid");
+
     return (
         <section className="border-r border-zinc-900 pt-4 px-2 flex flex-col gap-y-1 bg-black bg-opacity-10 w-48 h-screen">
 
@@ -34,18 +36,18 @@ const Toolbar = ({ isSelected }: { isSelected: number }) => {
                 className={`border mt-6 text-white text-xs flex items-center justify-center border-gray-900 w-full h-7 ${isSelected === 0 ? "bg-gray-900" : ""}`}>
                 EXPLORE
             </Link>
-            
+
             <Link to="/new-room"
                 className={`border text-white text-xs flex items-center justify-center border-gray-900 w-full h-7 ${isSelected === 1 ? "bg-gray-900" : ""}`}>
                 NEW ROOM
             </Link>
 
-            <Link to={`/chat/`}
-                className={`border text-white text-xs flex items-center justify-center border-gray-900 w-full h-7 ${isSelected === 2 ? "bg-gray-900" : ""}`}>
+            <Link to={`${chatid ? `/chat/${chatid}` : "/"}`}
+                className={`border text-white text-xs flex items-center justify-center border-gray-900 w-full h-7 ${isSelected === 2 ? "bg-gray-900" : ""} ${chatid ? "" : "pointer-events-none opacity-40"}`}>
                 CHAT
             </Link>
 
-            <Link to="search" 
+            <Link to="/search"
                 className={`border text-white text-xs flex items-center justify-center border-gray-900 w-full h-7 ${isSelected === 3 ? "bg-gray-900" : ""}`}>
                 SEARCH
             </Link>

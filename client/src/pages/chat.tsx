@@ -5,8 +5,8 @@ import { io } from "socket.io-client";
 import { useParams } from "react-router-dom";
 import { userData } from "../context/userData";
 import { useRef } from "react";
-import { useNavigate } from "react-router-dom";
 import { formatDistanceStrict } from "date-fns";
+import { useNavigate } from "react-router-dom";
 
 interface User {
     id: string,
@@ -32,66 +32,80 @@ const Chat = () => {
     const [usersinChat, setUsersInChat] = useState<User[]>([]);
     const [inputValue, setInputValue] = useState("");
     const [isHost, setIsHost] = useState(false);
+    const [userWasKicked, setUserWasKicked] = useState(false);
 
     const { chatid } = useParams();
+
     const { user } = useContext(userData);
 
+    const navigate = useNavigate();
+
     useEffect(() => {
-        if (user.id) {
+        if (chatid) localStorage.setItem("chatid", chatid);
+        else localStorage.removeItem("chatid");
+    }, [chatid]);
+
+    useEffect(() => {
+        if (user.id && chatid) {
             socket.emit("join", { chatid: chatid, userid: user.id });
-        }
 
-        socket.on("chat-data", (data: ChatData) => {
-            setMessages(
-                data.messages.map(message => {
-                    return {
-                        ...message,
-                        date: formatDistanceStrict(new Date(message.date), new Date(), { addSuffix: true })
-                    }
-                })
-            );
+            socket.on("chat-data", (data: ChatData) => {
+                setMessages(
+                    data.messages.map(message => {
+                        return {
+                            ...message,
+                            date: formatDistanceStrict(new Date(message.date), new Date(), { addSuffix: true })
+                        }
+                    })
+                );
 
-            if (data.users.length > 1) {
-                const myIndex = data.users.findIndex(u => u.id === user.id);
+                if (data.users.length > 1) {
+                    const myIndex = data.users.findIndex(u => u.id === user.id);
 
-                [data.users[0], data.users[myIndex]] = [data.users[myIndex], data.users[0]];
+                    [data.users[0], data.users[myIndex]] = [data.users[myIndex], data.users[0]];
+
+                    setUsersInChat(data.users);
+                }
 
                 setUsersInChat(data.users);
-            }
+            });
 
-            setUsersInChat(data.users);
-        });
+            socket.on("new-message", (message: Message) => {
+                setMessages(prev => [...prev, {
+                    ...message,
+                    date: formatDistanceStrict(new Date(message.date), new Date(), { addSuffix: true })
+                }]);
+            });
 
-        socket.on("new-message", (message: Message) => {
-            setMessages(prev => [...prev, {
-                ...message,
-                date: formatDistanceStrict(new Date(message.date), new Date(), { addSuffix: true })
-            }]);
-        });
+            socket.emit("check-host", { token: localStorage.getItem("token"), chatid: chatid });
 
-        socket.on("user-kicket-out", data => {
-            const navigate = useNavigate();
-            if (data === user.id) navigate("/");
-        })
+            socket.on("host-verified", () => {
+                setIsHost(true);
+            });
 
-        socket.emit("check-host", { token: localStorage.getItem("token"), chatid: chatid });
-
-        socket.on("host-verified", () => {
-            setIsHost(true);
-        });
+            socket.on("kicked-out", () => {
+                setUserWasKicked(true);
+                localStorage.removeItem("chatid");
+            })
+        }
 
         return () => {
             socket.off("chat-data");
             socket.off("new-message");
             socket.off("user-kicket-out");
             socket.off("host-verified");
+            socket.off("kicked-out");
         };
-    }, [user]);
+    }, [user.id, chatid]);
 
 
     const handleSendMessage = (e: React.FormEvent) => {
         e.preventDefault();
-        socket.emit("sendMessage", { chatid: chatid, text: inputValue, userId: user.id });
+        socket.emit("sendMessage", {
+            chatid: chatid,
+            text: inputValue,
+            userId: user.id
+        });
 
         setInputValue("");
     }
@@ -110,16 +124,32 @@ const Chat = () => {
             chatid: chatid,
             token: localStorage.getItem("token")
         }
-        socket.emit("kick-user-out", data);
+        socket.emit("kick-out", data);
     }
-
-    console.log(isHost)
 
     return (
         <>
             <section className="flex h-screen w-full">
                 <Toolbar isSelected={2} />
-                <section className="w-full flex px-2 py-3">
+                <section className="w-full flex px-2 py-3 relative">
+
+                    {
+                        userWasKicked && (
+                            <div className="absolute flex justify-center items-center inset-0 backdrop-blur-lg z-30">
+                                <div className="flex flex-col text-white bg-gray-900 p-2 rounded-lg">
+                                    <span className="px-4 text-white py-2 rounded">
+                                    You've been kicked out of the chat
+                                    </span>
+                                    <button
+                                        onClick={() => navigate("/")}
+                                        className="w-full text-center bg-gray-800 hover:bg-gray-700 rounded px-2 py-1"
+                                    >
+                                        OK
+                                    </button>
+                                </div>
+                            </div>
+                        )
+                    }
 
                     <div className="h-full w-full flex flex-col justify-end px-2 py-1">
                         <div className="h-full rounded mb-1 w-full pb-2 overflow-y-auto scrollbar">
@@ -148,7 +178,7 @@ const Chat = () => {
                                                             </>
                                                         ) : (
                                                             <>
-                                                                <div className={`flex max-w-80 flex-col py-1 rounded-lg relative bg-gray-900`}>
+                                                                <div className={`flex max-w-80 flex-col py-1 rounded-lg bg-gray-900`}>
 
                                                                     <span className={`text-sm pl-2 pr-6 text-white break-words`}>{message.text}</span>
 
@@ -188,15 +218,15 @@ const Chat = () => {
                             {
                                 usersinChat.map((userChat, index) => {
                                     return (
-                                        <div key={index} className={`flex p-1 ${!isHost ? "justify-between" : "gap-x-2"} items-center mt-2 ${userChat.id === user.id ? 'bg-gray-900 rounded' : ""}`}>
+                                        <div key={index} className={`flex p-1 ${isHost && userChat.id !== user.id ? "justify-between" : "gap-x-2"} items-center mt-2 ${userChat.id === user.id ? 'bg-gray-900 rounded' : ""}`}>
                                             <FaUserCircle className="text-xl text-white" />
                                             <span className="text-white break-words text-xs">{userChat.name}</span>
 
                                             {
-                                                isHost && (
+                                                isHost && userChat.id !== user.id && (
                                                     <button
                                                         onClick={() => handleKickOut(userChat.id)}
-                                                        className={`bg-blue-950 hover:bg-blue-900 rounded px-2 text-white text-xs ${isHost && "hidden"}`}>
+                                                        className={`bg-blue-950 hover:bg-blue-900 rounded px-2 text-white text-xs`}>
                                                         kick out
                                                     </button>
                                                 )

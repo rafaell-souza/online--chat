@@ -15,6 +15,7 @@ type Chat = {
     status: string;
     language: string;
     host: string;
+    activeUsers: number;
 }
 
 type ChatData = {
@@ -86,7 +87,7 @@ const Explore = () => {
 
                                                         <p className="text-gray-300 bg-yellow-900 px-3 rounded bg-opacity-30 text-xs flex gap-x-1 justify-center items-center w-full">
                                                             <FaPeopleGroup className="text-lg" />
-                                                            {userActiveChat.capacity}
+                                                            {`${userActiveChat.activeUsers}/${userActiveChat.capacity}`}
                                                         </p>
 
                                                         <p className={`text-gray-300 ${userActiveChat.status === "open" ? "bg-green-900" : "bg-red-900"} px-3 rounded bg-opacity-30 text-xs w-full flex justify-center flex gap-x-1`}>
@@ -133,7 +134,7 @@ const Explore = () => {
 
                                                         <p className="text-gray-300 bg-yellow-900 px-3 rounded bg-opacity-30 text-xs flex gap-x-1 justify-center items-center w-full">
                                                             <FaPeopleGroup className="text-lg" />
-                                                            {chat.capacity}
+                                                            {`${chat.activeUsers}/${chat.capacity}`}
                                                         </p>
 
                                                         <p className={`text-gray-300 ${chat.status === "open" ? "bg-green-900" : "bg-red-900"} px-3 rounded bg-opacity-30 text-xs w-full flex justify-center flex gap-x-1`}>
