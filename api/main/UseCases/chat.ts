@@ -9,7 +9,7 @@ export default class ChatCases {
         this.userid = userid;
     }
 
-    async findChat (chatid: string) {
+    async findChat(chatid: string) {
         const chat = await prisma.chat.findUnique({
             where: { id: chatid }
         })
@@ -68,7 +68,6 @@ export default class ChatCases {
                 name: chatData.name,
                 description: chatData.description,
                 capacity: Number(chatData.capacity),
-                status: "open",
                 hostId: this.userid,
                 language: chatData.language
             }
@@ -77,10 +76,10 @@ export default class ChatCases {
         return chat.id;
     }
 
-    async isUserInChat() {
+    async isUserInChat(userid?: string) {
         const chatUser = await prisma.chatUser.findFirst({
             where: {
-                userId: this.userid,
+                userId: userid ? userid : this.userid
             }
         })
         if (chatUser) return chatUser.chatId;
@@ -178,7 +177,7 @@ export default class ChatCases {
             where: {
                 users: {
                     none: {
-                        userId: this.userid
+                        userId: this.userid,
                     }
                 }
             },
@@ -187,28 +186,32 @@ export default class ChatCases {
                 name: true,
                 description: true,
                 capacity: true,
-                status: true,
                 language: true,
                 host: {
                     select: {
-                        name: true
+                        name: true,
                     }
                 }
             }
-        })  
+        });
+
         if (chats) {
-            return chats.map(chat => {
-                return {
-                    id: chat.id,
-                    name: chat.name,
-                    description: chat.description,
-                    capacity: chat.capacity,
-                    status: chat.status,
-                    language: chat.language,
-                    host: chat.host.name
-                }
-            }
-        )}
+            return Promise.all(
+                chats.map(async (chat) => {
+                    const activeUsers = await this.countUsersInChat(chat.id);
+
+                    return {
+                        id: chat.id,
+                        name: chat.name,
+                        description: chat.description,
+                        capacity: chat.capacity,
+                        language: chat.language,
+                        host: chat.host.name,
+                        activeUsers: activeUsers
+                    };
+                })
+            );
+        }
     }
 
     async getUserActiveChat() {
@@ -221,7 +224,6 @@ export default class ChatCases {
                         name: true,
                         description: true,
                         capacity: true,
-                        status: true,
                         language: true,
                         host: {
                             select: {
@@ -234,24 +236,25 @@ export default class ChatCases {
         })
 
         if (chat) {
+            const activeUsers = await prisma.chatUser.count({ where: { chatId: chat.chat.id } })
             return {
                 id: chat.chat.id,
                 name: chat.chat.name,
                 description: chat.chat.description,
                 capacity: chat.chat.capacity,
-                status: chat.chat.status,
                 language: chat.chat.language,
-                host: chat.chat.host.name
+                host: chat.chat.host.name,
+                activeUsers: activeUsers
             }
         }
     }
 
     async searchChat(query: string, by: string) {
-        if (by === "host") { 
+        if (by === "host") {
             const foundHost = await prisma.chat.findMany({
                 where: {
                     host: {
-                        name: {contains: query}
+                        name: { contains: query }
                     }
                 },
                 select: {
@@ -259,7 +262,6 @@ export default class ChatCases {
                     name: true,
                     description: true,
                     capacity: true,
-                    status: true,
                     language: true,
                     host: {
                         select: {
@@ -276,25 +278,23 @@ export default class ChatCases {
                         name: chat.name,
                         description: chat.description,
                         capacity: chat.capacity,
-                        status: chat.status,
                         language: chat.language,
                         host: chat.host.name
                     }
                 })
                 return data;
             }
-            
+
         } else if (by === "name") {
             const foundHost = await prisma.chat.findMany({
                 where: {
-                    name: {contains: query}
+                    name: { contains: query }
                 },
                 select: {
                     id: true,
                     name: true,
                     description: true,
                     capacity: true,
-                    status: true,
                     language: true,
                     host: {
                         select: {
@@ -311,7 +311,6 @@ export default class ChatCases {
                         name: chat.name,
                         description: chat.description,
                         capacity: chat.capacity,
-                        status: chat.status,
                         language: chat.language,
                         host: chat.host.name
                     }
@@ -319,12 +318,5 @@ export default class ChatCases {
                 return data;
             }
         }
-    }
-
-    async closeChat (chatid: string) {
-        await prisma.chat.update({
-            where: { id: chatid },
-            data: { status: "full" }
-        })
     }
 }

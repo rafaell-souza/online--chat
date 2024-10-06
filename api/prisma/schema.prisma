@@ -34,13 +34,13 @@ model Chat {
   description String @db.Text
   language    String @db.VarChar(30)
   capacity    Int
-  status      status
 
   host   User   @relation(fields: [hostId], references: [id], onDelete: Cascade)
   hostId String @unique @db.VarChar(36)
 
   messages Message[]
   users    ChatUser[]
+  blackList ChatBlackList[]
 }
 
 model Message {
@@ -59,6 +59,14 @@ model ChatUser {
   id    Int @id @default(autoincrement())
   
   user  User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String @db.VarChar(36) @unique
+
+  chat   Chat @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  chatId String @db.VarChar(36)
+}
+
+model ChatBlackList {
+  id Int @id @default(autoincrement()) 
   userId String @db.VarChar(36) @unique
 
   chat   Chat @relation(fields: [chatId], references: [id], onDelete: Cascade)

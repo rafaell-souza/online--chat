@@ -4,15 +4,12 @@ import { userData } from "../context/userData";
 import { Link } from "react-router-dom";
 import { MdLanguage } from "react-icons/md";
 import { FaPeopleGroup } from "react-icons/fa6";
-import { MdSensorDoor } from "react-icons/md";
-import { BiSolidDoorOpen } from "react-icons/bi";
 
 type Chat = {
     id: string;
     name: string;
     description: string;
     capacity: number;
-    status: string;
     language: string;
     host: string;
     activeUsers: number;
@@ -74,7 +71,7 @@ const Explore = () => {
 
                                                     <Link
                                                         to={`/chat/${userActiveChat.id}`}
-                                                        className={`${userActiveChat.status === "open" ? "bg-gray-700 hover:bg-gray-600" : "pointer-events-none bg-gray-900"} border border-gray-600 w-full text-white h-6 rounded-lg py-4 justify-center items-center flex`}>Enter in the chat
+                                                        className={` border border-gray-600 w-full text-white h-6 rounded-lg py-4 justify-center items-center flex`}>Enter in the chat
                                                     </Link>
 
                                                     <div className="flex mt-2 gap-x-1">
@@ -88,11 +85,6 @@ const Explore = () => {
                                                         <p className="text-gray-300 bg-yellow-900 px-3 rounded bg-opacity-30 text-xs flex gap-x-1 justify-center items-center w-full">
                                                             <FaPeopleGroup className="text-lg" />
                                                             {`${userActiveChat.activeUsers}/${userActiveChat.capacity}`}
-                                                        </p>
-
-                                                        <p className={`text-gray-300 ${userActiveChat.status === "open" ? "bg-green-900" : "bg-red-900"} px-3 rounded bg-opacity-30 text-xs w-full flex justify-center flex gap-x-1`}>
-                                                            {userActiveChat.status === "open" ? <MdSensorDoor className="text-lg" /> : <BiSolidDoorOpen className="text-lg" />}
-                                                            {userActiveChat.status}
                                                         </p>
                                                     </div>
                                                 </div>-
@@ -121,7 +113,7 @@ const Explore = () => {
 
                                                     <Link
                                                         to={`/chat/${chat.id}`}
-                                                        className={`${chat.status === "open" ? "bg-gray-700 hover:bg-gray-600" : "pointer-events-none bg-gray-900"} border border-gray-600 w-full text-white h-6 rounded-lg py-4 justify-center items-center flex`}>Enter in the chat
+                                                        className={`border border-gray-600 w-full text-white h-6 rounded-lg py-4 justify-center items-center flex`}>Enter in the chat
                                                     </Link>
 
                                                     <div className="flex mt-2 gap-x-1">
@@ -135,11 +127,6 @@ const Explore = () => {
                                                         <p className="text-gray-300 bg-yellow-900 px-3 rounded bg-opacity-30 text-xs flex gap-x-1 justify-center items-center w-full">
                                                             <FaPeopleGroup className="text-lg" />
                                                             {`${chat.activeUsers}/${chat.capacity}`}
-                                                        </p>
-
-                                                        <p className={`text-gray-300 ${chat.status === "open" ? "bg-green-900" : "bg-red-900"} px-3 rounded bg-opacity-30 text-xs w-full flex justify-center flex gap-x-1`}>
-                                                            {chat.status === "open" ? <MdSensorDoor className="text-lg" /> : <BiSolidDoorOpen className="text-lg" />}
-                                                            {chat.status}
                                                         </p>
                                                     </div>
                                                 </div>-
