@@ -191,6 +191,11 @@ export default class ChatCases {
                     select: {
                         name: true,
                     }
+                },
+                blackList: {
+                    select: {
+                        userId: true
+                    }
                 }
             }
         });
@@ -207,7 +212,8 @@ export default class ChatCases {
                         capacity: chat.capacity,
                         language: chat.language,
                         host: chat.host.name,
-                        activeUsers: activeUsers
+                        activeUsers: activeUsers,
+                        blackList: chat.blackList.map(user => user.userId)
                     };
                 })
             );
@@ -229,6 +235,11 @@ export default class ChatCases {
                             select: {
                                 name: true
                             }
+                        },
+                        blackList: {
+                            select: {
+                                userId: true
+                            }
                         }
                     }
                 }
@@ -236,7 +247,7 @@ export default class ChatCases {
         })
 
         if (chat) {
-            const activeUsers = await prisma.chatUser.count({ where: { chatId: chat.chat.id } })
+            const activeUsers = await this.countUsersInChat(chat.chat.id);
             return {
                 id: chat.chat.id,
                 name: chat.chat.name,
@@ -244,7 +255,8 @@ export default class ChatCases {
                 capacity: chat.chat.capacity,
                 language: chat.chat.language,
                 host: chat.chat.host.name,
-                activeUsers: activeUsers
+                activeUsers: activeUsers,
+                blackList: chat.chat.blackList.map(user => user.userId)
             }
         }
     }
@@ -253,8 +265,16 @@ export default class ChatCases {
         if (by === "host") {
             const foundHost = await prisma.chat.findMany({
                 where: {
+                    hostId: {
+                        not: this.userid
+                    },
                     host: {
                         name: { contains: query }
+                    },
+                    blackList: {
+                        none: {
+                            userId: this.userid
+                        }
                     }
                 },
                 select: {
@@ -272,23 +292,34 @@ export default class ChatCases {
             })
 
             if (foundHost) {
-                const data = foundHost.map(chat => {
-                    return {
-                        id: chat.id,
-                        name: chat.name,
-                        description: chat.description,
-                        capacity: chat.capacity,
-                        language: chat.language,
-                        host: chat.host.name
-                    }
-                })
-                return data;
+
+                return Promise.all(
+                    foundHost.map(async (chat) => {
+                        const activeUsers = await this.countUsersInChat(chat.id);
+
+                        return {
+                            id: chat.id,
+                            name: chat.name,
+                            description: chat.description,
+                            capacity: chat.capacity,
+                            language: chat.language,
+                            host: chat.host.name,
+                            activeUsers: activeUsers
+                        }
+                    })
+                )
             }
 
         } else if (by === "name") {
             const foundHost = await prisma.chat.findMany({
                 where: {
-                    name: { contains: query }
+                    hostId: { not: this.userid },
+                    name: { contains: query },
+                    blackList: {
+                        none: {
+                            userId: this.userid
+                        }
+                    }
                 },
                 select: {
                     id: true,
@@ -305,17 +336,22 @@ export default class ChatCases {
             })
 
             if (foundHost) {
-                const data = foundHost.map(chat => {
-                    return {
-                        id: chat.id,
-                        name: chat.name,
-                        description: chat.description,
-                        capacity: chat.capacity,
-                        language: chat.language,
-                        host: chat.host.name
-                    }
-                })
-                return data;
+
+                return Promise.all(
+                    foundHost.map(async (chat) => {
+                        const activeUsers = await this.countUsersInChat(chat.id);
+
+                        return {
+                            id: chat.id,
+                            name: chat.name,
+                            description: chat.description,
+                            capacity: chat.capacity,
+                            language: chat.language,
+                            host: chat.host.name,
+                            activeUsers: activeUsers
+                        }
+                    })
+                )
             }
         }
     }

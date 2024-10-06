@@ -8,8 +8,8 @@ export class SearchChat {
         req: Request,
         res: Response
     ) {
-        const query = req.params.query
-        const by = req.params.by
+        const { query, by } = req.query as { query: string, by: string }
+        const userid = req.params.userid;
 
         const schema = {query, by}
 
@@ -17,7 +17,7 @@ export class SearchChat {
 
         if (error) throw new BadRequest(error.errors[0].message)
 
-        const chatCases = new ChatCases("")
+        const chatCases = new ChatCases(userid)
         const chat = await chatCases.searchChat(query, by)
 
         res.status(200).json({

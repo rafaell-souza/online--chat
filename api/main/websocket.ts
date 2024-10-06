@@ -72,8 +72,6 @@ io.on("connection", (socket) => {
 
             const isUserOnBlacklist = blackList.find(user => user.userId === data.userid);
 
-            console.log(isUserOnBlacklist);
-
             if (isUserOnBlacklist) {
                 socket.emit("kicked-out");
                 return;

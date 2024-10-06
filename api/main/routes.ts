@@ -16,6 +16,6 @@ router.get("/user", TokenCheckings, standardRateLimit, GetUserData.execute);
 
 router.post("/chat", TokenCheckings, strictRateLimit, CreateChat.execute);
 router.get("/chat/:id", TokenCheckings, standardRateLimit, GetChats.execute);
-router.get("/chat/search/:query/:by", TokenCheckings, standardRateLimit, SearchChat.execute);
+router.get("/chat/search/:userid", TokenCheckings, standardRateLimit, SearchChat.execute);
 
 export default router;

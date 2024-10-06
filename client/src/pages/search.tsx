@@ -2,12 +2,11 @@ import Toolbar from "../components/toolbar";
 import { useForm } from "react-hook-form";
 import searchSchema from "../schemas/search";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { Link } from "react-router-dom";
 import { MdLanguage } from "react-icons/md";
 import { FaPeopleGroup } from "react-icons/fa6";
-import { MdSensorDoor } from "react-icons/md";
-import { BiSolidDoorOpen } from "react-icons/bi";
+import { userData } from "../context/userData";
 
 type Chat = {
     id: string;
@@ -17,10 +16,13 @@ type Chat = {
     status: string;
     language: string;
     host: string;
+    activeUsers: number;
 }
 
 const Search = () => {
     const [searchedData, setSearchedData] = useState<Chat[]>([]);
+
+    const { user } = useContext(userData);
 
     const {
         register,
@@ -31,7 +33,8 @@ const Search = () => {
     });
 
     const handleSubmitForm = handleSubmit((data) => {
-        fetch(`http://localhost:9000/api/chat/search/${data.query}/${data.by}`, {
+        const url = `http://localhost:9000/api/chat/search/${user.id}?query=${data.query}&by=${data.by}`;
+        fetch(url, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
@@ -45,7 +48,7 @@ const Search = () => {
                 }
                 else setSearchedData(data.chat);
             });
-            resetField("query")
+        resetField("query")
     })
 
     return (
@@ -53,8 +56,8 @@ const Search = () => {
             <Toolbar isSelected={3} />
 
             <div className="w-full px-4 py-8 flex flex-col">
-                <form className="flex gap-x-1" 
-                onSubmit={handleSubmitForm}
+                <form className="flex gap-x-1"
+                    onSubmit={handleSubmitForm}
                 >
                     <input
                         type="text"
@@ -89,7 +92,9 @@ const Search = () => {
 
                                         <Link
                                             to={`/chat/${chat.id}`}
-                                            className={`${chat.status === "open" ? "bg-gray-700 hover:bg-gray-600" : "pointer-events-none bg-gray-900"} border border-gray-600 w-full text-white h-6 rounded-lg py-4 justify-center items-center flex`}>Enter in the chat
+                                            className={`border border-gray-700 w-full bg-gray-700 hover:bg-gray-600 text-white h-6 rounded-lg py-4 justify-center cursor-pointer items-center flex`}
+                                        >
+                                            Join chat
                                         </Link>
 
                                         <div className="flex mt-2 gap-x-1">
@@ -102,12 +107,7 @@ const Search = () => {
 
                                             <p className="text-gray-300 bg-yellow-900 px-3 rounded bg-opacity-30 text-xs flex gap-x-1 justify-center items-center w-full">
                                                 <FaPeopleGroup className="text-lg" />
-                                                {chat.capacity}
-                                            </p>
-
-                                            <p className={`text-gray-300 ${chat.status === "open" ? "bg-green-900" : "bg-red-900"} px-3 rounded bg-opacity-30 text-xs w-full flex justify-center flex gap-x-1`}>
-                                                {chat.status === "open" ? <MdSensorDoor className="text-lg" /> : <BiSolidDoorOpen className="text-lg" />}
-                                                {chat.status}
+                                                {chat.activeUsers}/{chat.capacity}
                                             </p>
                                         </div>
                                     </div>-
