@@ -72,9 +72,9 @@ const Explore = () => {
 
                                                     <Link
                                                         to={`/chat/${userActiveChat.id}`}
-                                                        className={`border border-gray-700 w-full bg-gray-700 hover:bg-gray-600 text-white h-6 rounded-lg py-4 justify-center cursor-pointer items-center flex`}
+                                                        className={`border border-gray-700 w-full bg-gray-700 hover:bg-gray-600 text-white h-6 rounded-lg py-4 justify-center cursor-pointer items-center flex pointer-events-none opacity-50`}
                                                     >
-                                                        Join chat
+                                                        Participating
                                                     </Link>
 
                                                     <div className="flex mt-2 gap-x-1">
@@ -120,9 +120,9 @@ const Explore = () => {
 
                                                                 <Link
                                                                     to={`/chat/${chat.id}`}
-                                                                    className={`border border-gray-700 w-full bg-gray-700 hover:bg-gray-600 text-white h-6 rounded-lg py-4 justify-center cursor-pointer items-center flex`}
+                                                                    className={`border border-gray-700 w-full bg-gray-700 hover:bg-gray-600 text-white h-6 rounded-lg py-4 justify-center cursor-pointer items-center flex ${chat.activeUsers === chat.capacity ? "pointer-events-none opacity-50" : ""}`}
                                                                 >
-                                                                    Join chat
+                                                                    {`${chat.activeUsers === chat.capacity ? "Chat is full" : "Join chat"}`}
                                                                 </Link>
 
                                                                 <div className="flex mt-2 gap-x-1">
@@ -145,7 +145,17 @@ const Explore = () => {
                                             </div>
                                         </>
                                     ) : (
-                                        <h1 className="text-white font-bold  h-full flex justify-center items-center">NO ACTIVE CHATS</h1>
+                                        <section className="text-white font-bold h-full flex justify-center items-center">
+                                            <div className="flex-col w-72 text-center">
+                                                <h1>There are no active chats available</h1>
+                                                <Link
+                                                    to="/new-room"
+                                                    className="border border-gray-700 w-full bg-gray-700 hover:bg-gray-600 text-white h-6 rounded-lg py-4 justify-center cursor-pointer items-center flex mt-4"
+                                                >
+                                                    Create chat
+                                                </Link>
+                                            </div>
+                                        </section>
                                     )
                                 }
                             </section>

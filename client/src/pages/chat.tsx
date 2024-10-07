@@ -138,7 +138,7 @@ const Chat = () => {
                             <div className="absolute flex justify-center items-center inset-0 backdrop-blur-lg z-30">
                                 <div className="flex flex-col text-white bg-gray-900 p-2 rounded-lg">
                                     <span className="px-4 text-white py-2 rounded">
-                                    You've been kicked out
+                                    You were kicked out of the chat
                                     </span>
                                     <button
                                         onClick={() => navigate("/")}

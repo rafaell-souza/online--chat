@@ -56,7 +56,7 @@ const Search = () => {
             <Toolbar isSelected={3} />
 
             <div className="w-full px-4 py-8 flex flex-col">
-                <form className="flex gap-x-1"
+                <form className="flex gap-x-1 justify-center"
                     onSubmit={handleSubmitForm}
                 >
                     <input
@@ -79,7 +79,8 @@ const Search = () => {
                 <div className="w-full mt-6 h-80 overflow-y-auto">
                     {
                         searchedData.length === 0 ? (
-                            <h1 className="text-white h-60 flex justify-center text-xl items-center">No chats found</h1>
+                            <h1 className="text-white h-60 flex justify-center text-xl items-center"><span className="bg-gray-950 border border-gray-900 py-1 px-5 rounded-lg">Chats will appear here</span>
+                            </h1>
                         ) : (
                             searchedData.map((chat) => (
                                 <div key={chat.id} className="border flex bg-gray-900 rounded border-gray-700 p-1 gap-x-1">
