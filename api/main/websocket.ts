@@ -3,8 +3,11 @@ import Joinz from "./SocketEvents/join";
 import Message from "./SocketEvents/message";
 import CheckHost from "./SocketEvents/CheckHost";
 import KickOut from "./SocketEvents/KickOut";
+import RemoveFromBlackList from "./SocketEvents/RemoveFromBlackList";
 
 let usersSockets: { userid: string, socket: string }[] = [];
+
+// add middleware
 
 io.on("connection", (socket) => {
 
@@ -27,10 +30,11 @@ io.on("connection", (socket) => {
         usersSockets = usersSockets.filter(user => user.userid !== userid);
     }
 
+    CheckHost(socket, io);
     Joinz(socket, io, storeScokets);
     Message(socket, io);
-    CheckHost(socket, io);
     KickOut(socket, io, storeScokets, removeUser);
+    RemoveFromBlackList(socket, io, storeScokets, removeUser);
 
     socket.on("disconnect", async () => {
         usersSockets = usersSockets.filter(user => user.socket !== socket.id);

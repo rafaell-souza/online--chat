@@ -10,7 +10,6 @@ export default function CheckHost (
 
         if (host.hostFor === data.chatid) {
             socket.emit("host-verified");
-            return;
         }
     });
 }

@@ -16,6 +16,7 @@ model User {
   chat Chat?
   message Message[]
   chatUser ChatUser?
+  chatBlackList ChatBlackList[]
 }
 
 model BlackToken {
@@ -67,8 +68,12 @@ model ChatUser {
 
 model ChatBlackList {
   id Int @id @default(autoincrement()) 
-  userId String @db.VarChar(36) @unique
+
+  user  User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String @db.VarChar(36) 
 
   chat   Chat @relation(fields: [chatId], references: [id], onDelete: Cascade)
   chatId String @db.VarChar(36)
+
+  @@unique([userId, chatId])
 }

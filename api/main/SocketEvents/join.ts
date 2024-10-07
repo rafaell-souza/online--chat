@@ -14,7 +14,9 @@ export default function Join(
 ) {
 
     socket.on("join", async (data: UserData) => {
+
         const chatCases = new ChatCases(data.userid);
+        const blackListCases = new ChatBlackListCases();
 
         const chat = await chatCases.findChat(data.chatid);
         if (!chat) return;
@@ -27,15 +29,15 @@ export default function Join(
 
             const messages = await chatCases.findMessages(data.chatid);
             const users = await chatCases.findUsersInChat(data.chatid);
+            const blackList = await blackListCases.getUserBlackList(data.chatid);
 
-            io.to(data.chatid).emit("chat-data", { messages, users });
-
+            io.to(data.chatid).emit("chat-data", { messages, users, blackList });
             return;
         }
 
         else if (isInChat && isInChat !== data.chatid) {
-            const countUsersInChat = await chatCases.countUsersInChat(data.chatid);
 
+            const countUsersInChat = await chatCases.countUsersInChat(data.chatid);
             if (countUsersInChat >= chat.capacity) return;
 
             await chatCases.removeUserFromChat(isInChat);
@@ -55,26 +57,29 @@ export default function Join(
             else await chatCases.setNewHost(userChat);
         }
 
-        else {
-            const isUserOnBlackList = new ChatBlackListCases();
-            const blackList = await isUserOnBlackList.getUserBlackList(data.chatid);
+        const blackListed = await blackListCases.isUserBlackListed(data.chatid, data.userid);
 
-            const isUserOnBlacklist = blackList.find(user => user.userId === data.userid);
+        if (blackListed) {
+            const userSocket = storeScokets(data.userid);
 
-            if(isUserOnBlacklist) {
-                socket.emit("kicked-out");
-                return;
+            if (userSocket) {
+                io.sockets.sockets.get(userSocket)?.emit("kicked-out");
+                io.sockets.sockets.get(userSocket)?.leave(data.chatid);
             }
-
-            await chatCases.joinChat(data.chatid);
-            storeScokets(data.userid, socket.id);
-            socket.join(data.chatid);
-
-            const messages = await chatCases.findMessages(data.chatid);
-            const users = await chatCases.findUsersInChat(data.chatid);
-
-            io.to(data.chatid).emit("chat-data", { messages, users });
+            return;
         }
-    });
+
+        await chatCases.joinChat(data.chatid);
+        storeScokets(data.userid, socket.id);
+        socket.join(data.chatid);
+
+        const messages = await chatCases.findMessages(data.chatid);
+        const users = await chatCases.findUsersInChat(data.chatid);
+        const blackList = await blackListCases.getUserBlackList(data.chatid);
+
+        socket.emit("chat-data", { messages, users, blackList });
+        io.to(data.chatid).emit("update-data", { users });
+    }
+    );
 
 }

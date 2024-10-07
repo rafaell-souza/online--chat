@@ -50,9 +50,9 @@ export default function KickOut(
             removeUser(data.userid);
 
             const blackListCases = new ChatBlackListCases();
-            const isUserOnBlackList = await blackListCases.getUserBlackList(data.chatid);
+            const blacklist = await blackListCases.getUserBlackList(data.chatid);
 
-            const isUserOnBlacklist = isUserOnBlackList.find(user => user.userId === data.userid);
+            const isUserOnBlacklist = blacklist?.find(user => user.userId === data.userid);
 
             if (!isUserOnBlacklist) {
                 await blackListCases.putUserOnBlackList(data.chatid, data.userid);

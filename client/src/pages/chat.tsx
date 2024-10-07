@@ -8,6 +8,12 @@ import { useRef } from "react";
 import { formatDistanceStrict } from "date-fns";
 import { useNavigate } from "react-router-dom";
 
+interface BlackList {
+    userId: string;
+    chatId: string;
+    name: string;
+}
+
 interface User {
     id: string,
     name: string
@@ -23,13 +29,13 @@ interface Message {
 interface ChatData {
     messages: Message[];
     users: User[];
+    blackList: BlackList[];
 }
-
-const socket = io("http://localhost:9000");
 
 const Chat = () => {
     const [messages, setMessages] = useState<Message[]>([]);
     const [usersinChat, setUsersInChat] = useState<User[]>([]);
+    const [blackList, setBlackList] = useState<BlackList[]>([]);
     const [inputValue, setInputValue] = useState("");
     const [isHost, setIsHost] = useState(false);
     const [userWasKicked, setUserWasKicked] = useState(false);
@@ -46,6 +52,8 @@ const Chat = () => {
     }, [chatid]);
 
     useEffect(() => {
+        const socket = io("http://localhost:9000");
+
         if (user.id && chatid) {
             socket.emit("join", { chatid: chatid, userid: user.id });
 
@@ -59,16 +67,18 @@ const Chat = () => {
                     })
                 );
 
-                if (data.users.length > 1) {
-                    const myIndex = data.users.findIndex(u => u.id === user.id);
+                const myIndex = data.users.findIndex(u => u.id === user.id);
 
-                    [data.users[0], data.users[myIndex]] = [data.users[myIndex], data.users[0]];
-
-                    setUsersInChat(data.users);
-                }
+                [data.users[0], data.users[myIndex]] = [data.users[myIndex], data.users[0]];
 
                 setUsersInChat(data.users);
+
+                setBlackList(data?.blackList?.length > 0 ? data.blackList : []);
             });
+
+            socket.on("update-data", (data: ChatData) => {
+                setUsersInChat(data.users);
+            })
 
             socket.on("new-message", (message: Message) => {
                 setMessages(prev => [...prev, {
@@ -92,15 +102,18 @@ const Chat = () => {
         return () => {
             socket.off("chat-data");
             socket.off("new-message");
-            socket.off("user-kicket-out");
             socket.off("host-verified");
             socket.off("kicked-out");
+            socket.off("update-data");
+            socket.disconnect();
         };
     }, [user.id, chatid]);
 
 
     const handleSendMessage = (e: React.FormEvent) => {
         e.preventDefault();
+        const socket = io("http://localhost:9000");
+
         socket.emit("sendMessage", {
             chatid: chatid,
             text: inputValue,
@@ -119,14 +132,30 @@ const Chat = () => {
     }, [messages]);
 
     const handleKickOut = (userid: string) => {
+        const socket = io("http://localhost:9000");
+
         const data = {
             userid: userid,
             chatid: chatid,
             token: localStorage.getItem("token")
         }
         socket.emit("kick-out", data);
+
     }
 
+    const RemoveFromBlackList = (userid: string) => {
+        const socket = io("http://localhost:9000");
+
+        const data = {
+            chatid: chatid,
+            userid: userid,
+            token: localStorage.getItem("token")
+        }
+        socket.emit("remove-from-blacklist", data);
+    }
+
+    console.log(usersinChat);
+    
     return (
         <>
             <section className="flex h-screen w-full">
@@ -138,7 +167,7 @@ const Chat = () => {
                             <div className="absolute flex justify-center items-center inset-0 backdrop-blur-lg z-30">
                                 <div className="flex flex-col text-white bg-gray-900 p-2 rounded-lg">
                                     <span className="px-4 text-white py-2 rounded">
-                                    You were kicked out of the chat
+                                        You were kicked out of the chat
                                     </span>
                                     <button
                                         onClick={() => navigate("/")}
@@ -214,7 +243,7 @@ const Chat = () => {
 
                     <div className="h-full w-56 flex flex-col mx-1 px-2 border-l border-gray-900">
                         <div className="bg-gray-800 text-white text-sm rounded px-2 py-1">Users</div>
-                        <div className="overflow-y-auto h-full">
+                        <div className={`overflow-y-auto h-full scrollbar`}>
                             {
                                 usersinChat.map((userChat, index) => {
                                     return (
@@ -236,6 +265,33 @@ const Chat = () => {
                                 })
                             }
                         </div>
+
+                        {
+                            isHost && blackList.length > 0 && (
+                                <>
+                                    <div className="bg-gray-800 text-white text-sm rounded px-2 py-1 mt-2">Blacklist</div>
+                                    <div className="overflow-y-auto h-44 scrollbar">
+                                        {
+                                            blackList.map((userChat, index) => {
+                                                return (
+                                                    <div key={index} className={`flex p-1 ${isHost ? "justify-between" : "gap-x-2"} items-center mt-2 ${userChat.userId === user.id ? 'bg-gray-900 rounded' : ""}`}>
+                                                        <FaUserCircle className="text-xl text-white" />
+                                                        <span className="text-white break-words text-xs">{userChat.name}</span>
+
+                                                        <button
+                                                            onClick={() => RemoveFromBlackList(userChat.userId)}
+                                                            className={`bg-blue-950 hover:bg-blue-900 rounded px-2 text-white text-xs`}>
+                                                            remove
+                                                        </button>
+
+                                                    </div>
+                                                )
+                                            })
+                                        }
+                                    </div>
+                                </>
+                            )
+                        }
                     </div>
 
                 </section>

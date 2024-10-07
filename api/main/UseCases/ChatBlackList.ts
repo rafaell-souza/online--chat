@@ -11,14 +11,46 @@ export default class ChatBlackListCases {
     }
 
     async getUserBlackList(chatid: string) {
-        return await prisma.chatBlackList.findMany({
+        const data = await prisma.chatBlackList.findMany({
             where: {
                 chatId: chatid
             },
             select: {
                 userId: true,
-                chatId: true
+                chatId: true,
+                user: {
+                    select: {
+                        name: true,
+                    }
+                }
             }
         })
+
+        if (data) {
+            return data.map((item) => {
+                return {
+                    userId: item.userId,
+                    chatId: item.chatId,
+                    name: item.user.name
+                }
+            })
+        }
+    }
+
+    async removeUserFromBlackList(id: number) {
+        await prisma.chatBlackList.delete({
+            where: { id: id }
+        })
+    }
+
+    async isUserBlackListed(chatid: string, userid: string) {
+        const data = await prisma.chatBlackList.findFirst({
+            where: {
+                chatId: chatid,
+                userId: userid
+            }
+        })
+
+        if (data) return data.id;
     }
 }
