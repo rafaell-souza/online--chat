@@ -46,6 +46,9 @@ export default function Join(
             if (userSocket) {
                 io.sockets.sockets.get(userSocket)?.leave(isInChat);
             }
+
+            const users = await chatCases.findUsersInChat(isInChat);
+            io.to(isInChat).emit("update-data", { users });
         }
 
         const userChat = await chatCases.findUserChat();

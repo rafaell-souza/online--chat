@@ -56,9 +56,13 @@ export default function KickOut(
 
             if (!isUserOnBlacklist) {
                 await blackListCases.putUserOnBlackList(data.chatid, data.userid);
-            }
 
-            return;
+                const users = await chatCases.findUsersInChat(data.chatid);
+                const newblacklist = await blackListCases.getUserBlackList(data.chatid);
+    
+                io.to(data.chatid).emit("update-data", { users });
+                io.to(data.chatid).emit("update-blacklist", newblacklist );
+            }
         }
     })
 }

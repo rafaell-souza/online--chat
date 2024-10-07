@@ -80,6 +80,10 @@ const Chat = () => {
                 setUsersInChat(data.users);
             })
 
+            socket.on("update-blacklist", (data: BlackList[]) => {
+                setBlackList(data);
+            });
+
             socket.on("new-message", (message: Message) => {
                 setMessages(prev => [...prev, {
                     ...message,
@@ -105,6 +109,7 @@ const Chat = () => {
             socket.off("host-verified");
             socket.off("kicked-out");
             socket.off("update-data");
+            socket.off("update-blacklist");
             socket.disconnect();
         };
     }, [user.id, chatid]);
@@ -153,8 +158,7 @@ const Chat = () => {
         }
         socket.emit("remove-from-blacklist", data);
     }
-
-    console.log(usersinChat);
+    console.log(usersinChat)
     
     return (
         <>

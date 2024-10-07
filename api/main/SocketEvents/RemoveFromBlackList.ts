@@ -1,7 +1,7 @@
 import * as SocketIO from "socket.io";
 import jwt from "jsonwebtoken";
 import ChatBlackListCases from "../UseCases/ChatBlackList";
-import TokenCases from "../UseCases/Token";
+import TokenCases from "../UseCases/token";
 
 type BlackListdata = {
     chatid: string;
@@ -37,6 +37,10 @@ export default function RemoveFromBlackList(
         const chatBlackListCases = new ChatBlackListCases();
         const isBlackListed = await chatBlackListCases.isUserBlackListed(data.chatid, data.userid);
 
-        if (isBlackListed) await chatBlackListCases.removeUserFromBlackList(isBlackListed); 
+        if (isBlackListed) {
+            await chatBlackListCases.removeUserFromBlackList(isBlackListed); 
+            const newblacklist = await chatBlackListCases.getUserBlackList(data.chatid);
+            io.to(data.chatid).emit("update-blacklist", { newblacklist });
+        }
     });
 }
