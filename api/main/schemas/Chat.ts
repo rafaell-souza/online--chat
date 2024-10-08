@@ -16,8 +16,8 @@ enum Language {
 
 
 const chatSchema = z.object({
-    name: z.string().regex(/^[a-zA-Z0-9_\-. ]{3,55}$/),
-    description: z.string().min(3).max(255).regex(/^[a-zA-Z0-9_\-. ]+$/),
+    name: z.string().regex(/^[a-zA-Z0-9 _àéíôêáãúçóâõ\.\?\+!-]{3,55}$/),
+    description: z.string().min(3).max(100).regex(/^[a-zA-Z0-9 _àéíôêáãúçóâõ\.\?\+!-]+$/),
     capacity: z.string().regex(/^(?:[2-9]|[1-4][0-9]|50)$/),
     language: z.nativeEnum(Language),
 });

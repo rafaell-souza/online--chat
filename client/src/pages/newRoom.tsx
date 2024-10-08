@@ -3,12 +3,21 @@ import { useForm } from "react-hook-form"
 import chatSchema from "../schemas/chat";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "react-router-dom";
+import { MdError } from "react-icons/md";
+
+type ChatData = {
+    name: string;
+    description: string;
+    capacity: number;
+    language: string;
+}
 
 const NewRoom = () => {
     const {
         register,
         handleSubmit,
-    } = useForm({
+        formState: { errors }
+    } = useForm<ChatData>({
         resolver: zodResolver(chatSchema)
     });
     const navigate = useNavigate()
@@ -35,11 +44,11 @@ const NewRoom = () => {
 
                 <section className="w-full text-gray-300 flex flex-col relative justify-start">
 
+                <h1 className="text-3xl mx-4 mt-6">Create chat</h1>
+
                     <form
                         onSubmit={handleSubmitForm}
-                        className="flex mt-8 flex-col px-4">
-                        <h1 className="text-2xl mb-7">Create chat room.</h1>
-
+                        className="flex mt-4 flex-col mx-4 py-2">
 
                         <div className="flex gap-x-8">
 
@@ -47,21 +56,37 @@ const NewRoom = () => {
                                 <label>Room name</label>
                                 <input
                                     type="text"
-                                    className="w-full bg-gray-900 px-1 h-7 rounded outline-none"
+                                    className="w-full bg-gray-900 px-1 h-8 rounded outline-none"
                                     {...register("name")}
                                 />
+                                {
+                                    errors.name && (
+                                        <div className="flex items-center gap-x-1 text-xs text-red-500">
+                                            <MdError />
+                                            <span>{errors.name.message}</span>
+                                        </div>
+                                    )
+                                }
 
-                                <label className="mt-4">Room description</label>
+                                <label className="mt-1">Room description</label>
                                 <textarea
-                                    className="w-full bg-gray-900 p-1 h-20 rounded outline-none"
+                                    className="w-full bg-gray-900 py-1 px-2 scrollbar leading-none h-20 rounded outline-none"
                                     {...register("description")}
                                 ></textarea>
+                                {
+                                    errors.description && (
+                                        <div className="flex items-center gap-x-1 text-xs text-red-500">
+                                            <MdError />
+                                            <span>{errors.description.message}</span>
+                                        </div>
+                                    )
+                                }
 
-                                <div className="flex gap-x-1 items-center mt-4">
+                                <div className="flex gap-x-1 items-center mt-2">
                                     <label htmlFor="Participants">Participants</label>
                                     <input
                                         type="number" min="2" max="50" defaultValue="2"
-                                        className="w-11 bg-gray-900 px-1 h-7 rounded outline-none"
+                                        className="w-11 bg-gray-900 px-1 h-6 rounded outline-none"
                                         {...register("capacity")}
                                     />
                                 </div>
@@ -87,7 +112,7 @@ const NewRoom = () => {
 
                         <button
                             type="submit"
-                            className="bg-gray-900 hover:bg-gray-700 h-8 rounded w-40  mt-8"
+                            className="bg-gray-900 hover:bg-gray-700 h-8 rounded w-40  mt-4"
                         >
                             Create room
                         </button>

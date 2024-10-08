@@ -24,8 +24,19 @@ const Toolbar = ({ isSelected }: { isSelected: number }) => {
 
     const chatid = localStorage.getItem("chatid");
 
+    const handleLogout = async () => {
+        await fetch("http://localhost:9000/api/logout", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${localStorage.getItem("token")}`
+            }
+        })
+        localStorage.removeItem("token");
+    };
+
     return (
-        <section className="border-r border-zinc-900 pt-4 px-2 flex flex-col gap-y-1 bg-black bg-opacity-10 w-48 h-screen">
+        <section className="border-r border-zinc-950 pt-4 px-2 flex flex-col gap-y-1 bg-black bg-opacity-20 w-48 h-screen relative">
 
             <div className="flex items-center mt-4 flex-col">
                 <FaUserCircle className="text-4xl text-white" />
@@ -33,23 +44,30 @@ const Toolbar = ({ isSelected }: { isSelected: number }) => {
             </div>
 
             <Link to={`/`}
-                className={`border mt-6 text-white text-xs flex items-center justify-center border-gray-900 w-full h-7 ${isSelected === 0 ? "bg-gray-900" : ""}`}>
+                className={`mt-6 text-white hover:bg-gray-900 border border-gray-900 rounded-lg text-xs flex items-center justify-center w-full h-7 ${isSelected === 0 ? "bg-gray-700" : "bg-gray-950"}`}>
                 EXPLORE
             </Link>
 
             <Link to="/new-room"
-                className={`border text-white text-xs flex items-center justify-center border-gray-900 w-full h-7 ${isSelected === 1 ? "bg-gray-900" : ""}`}>
+                className={`text-white border hover:bg-gray-900 border-gray-900 text-xs flex rounded-lg items-center justify-center w-full h-7 ${isSelected === 1 ? "bg-gray-700" : "bg-gray-950"}`}>
                 NEW ROOM
             </Link>
 
             <Link to={`${chatid ? `/chat/${chatid}` : "/"}`}
-                className={`border text-white text-xs flex items-center justify-center border-gray-900 w-full h-7 ${isSelected === 2 ? "bg-gray-900" : ""} ${chatid ? "" : "pointer-events-none opacity-40"}`}>
+                className={`text-white border border-gray-900 hover:bg-gray-900 rounded-lg text-xs flex items-center justify-center w-full h-7 ${isSelected === 2 ? "bg-gray-700" : "bg-gray-950"} ${chatid ? "" : "pointer-events-none opacity-40"}`}>
                 CHAT
             </Link>
 
             <Link to="/search"
-                className={`border text-white text-xs flex items-center justify-center border-gray-900 w-full h-7 ${isSelected === 3 ? "bg-gray-900" : ""}`}>
+                className={`text-white border hover:bg-gray-900 border-gray-900 rounded-lg text-xs flex items-center justify-center w-full h-7 ${isSelected === 3 ? "bg-gray-700" : "bg-gray-950"}`}>
                 SEARCH
+            </Link>
+
+            <Link 
+            to="/login"
+            onClick={handleLogout}
+                className="text-white rounded-lg text-xs flex items-center justify-center w-full h-7 bg-gray-950 border border-gray-900 hover:bg-gray-900 absolute bottom-4 w-36">
+                LOGOUT
             </Link>
 
         </section>

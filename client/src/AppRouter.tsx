@@ -1,22 +1,35 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import Explore from './pages/explore';
-import NewRoom from './pages/newRoom';
-import Chat from './pages/chat';
-import Register from './pages/register';
-import Login from './pages/login';
-import Search from './pages/search';
+import { lazy, Suspense } from 'react';
+import { ImSpinner8 } from "react-icons/im";
+
+const Explore = lazy(() => import('./pages/explore'));
+const NewRoom = lazy(() => import('./pages/newRoom'));
+const Chat = lazy(() => import('./pages/chat'));
+const Register = lazy(() => import('./pages/register'));
+const Login = lazy(() => import('./pages/login'));
+const Search = lazy(() => import('./pages/search'));
+const NotFound = lazy(() => import('./pages/NotFound'));
+
+import AuthComponent from './components/AuthComponent';
 
 const AppRoutes = () => {
     return (
         <BrowserRouter>
-            <Routes>
-                <Route path="/" element={<Explore />} />
-                <Route path="/new-room" element={<NewRoom />} />
-                <Route path="/chat/:chatid" element={<Chat />} />
-                <Route path="/register" element={< Register /> } />
-                <Route path="/login" element={ < Login /> } />
-                <Route path="/search" element={ < Search /> } />
-            </Routes>
+            <Suspense fallback={
+                <section className='w-full h-screen flex justify-center items-center'>
+                    <ImSpinner8 className='text-2xl text-white animate-spin' />
+                </section>
+            }>
+                <Routes>
+                    <Route path="/" element={<AuthComponent component={<Explore />} />} />
+                    <Route path="/new-room" element={<AuthComponent component={<NewRoom />} />} />
+                    <Route path="/chat/:chatid" element={<AuthComponent component={<Chat />} />} />
+                    <Route path="/register" element={<Register />} />
+                    <Route path="/login" element={<Login />} />
+                    <Route path="/search" element={<AuthComponent component={<Search />} />} />
+                    <Route path="*" element={<NotFound />} />
+                </Routes>
+            </Suspense>
         </BrowserRouter>
     )
 }
