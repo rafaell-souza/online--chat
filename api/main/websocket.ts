@@ -4,11 +4,17 @@ import Message from "./SocketEvents/message";
 import CheckHost from "./SocketEvents/CheckHost";
 import KickOut from "./SocketEvents/KickOut";
 import RemoveFromBlackList from "./SocketEvents/RemoveFromBlackList";
+import SocketConnectionValidation from "./middlewares/SocketConnectionValidation";
 
 let usersSockets: { userid: string, socket: string }[] = [];
 
-// add middleware
+// Add authentication middleware - complete
 
+// Improve input data validation and versatility
+// Add input validation details on interface to the fianl user
+// Add errors messages to the final user
+
+io.use(SocketConnectionValidation);
 io.on("connection", (socket) => {
 
     const storeScokets = (userid: string, socket?: string) => {

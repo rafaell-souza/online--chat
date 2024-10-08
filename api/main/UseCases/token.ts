@@ -6,4 +6,10 @@ export default class TokenCases {
             data: { token: token }
         })
     }
+
+    static async isTokenBlacklisted(token: string) {
+        return await prisma.blackToken.findFirst({
+            where: { token: token }
+        });
+    }
 }

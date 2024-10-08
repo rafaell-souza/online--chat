@@ -7,6 +7,7 @@ import { userData } from "../context/userData";
 import { useRef } from "react";
 import { formatDistanceStrict } from "date-fns";
 import { useNavigate } from "react-router-dom";
+import * as SocketIo from "socket.io-client";
 
 interface BlackList {
     userId: string;
@@ -39,6 +40,7 @@ const Chat = () => {
     const [inputValue, setInputValue] = useState("");
     const [isHost, setIsHost] = useState(false);
     const [userWasKicked, setUserWasKicked] = useState(false);
+    const socket = useRef<SocketIo.Socket | null>(null);
 
     const { chatid } = useParams();
 
@@ -52,12 +54,16 @@ const Chat = () => {
     }, [chatid]);
 
     useEffect(() => {
-        const socket = io("http://localhost:9000");
+        socket.current = io("http://localhost:9000", {
+            auth: {
+                token: localStorage.getItem("token")
+            }
+        });
 
         if (user.id && chatid) {
-            socket.emit("join", { chatid: chatid, userid: user.id });
+            socket.current.emit("join", { chatid: chatid, userid: user.id });
 
-            socket.on("chat-data", (data: ChatData) => {
+            socket.current.on("chat-data", (data: ChatData) => {
                 setMessages(
                     data.messages.map(message => {
                         return {
@@ -76,50 +82,48 @@ const Chat = () => {
                 setBlackList(data?.blackList?.length > 0 ? data.blackList : []);
             });
 
-            socket.on("update-data", (data: ChatData) => {
+            socket.current.on("update-data", (data: ChatData) => {
                 setUsersInChat(data.users);
             })
 
-            socket.on("update-blacklist", (data: BlackList[]) => {
+            socket.current.on("update-blacklist", (data: BlackList[]) => {
                 setBlackList(data);
             });
 
-            socket.on("new-message", (message: Message) => {
+            socket.current.on("new-message", (message: Message) => {
                 setMessages(prev => [...prev, {
                     ...message,
                     date: formatDistanceStrict(new Date(message.date), new Date(), { addSuffix: true })
                 }]);
             });
 
-            socket.emit("check-host", { token: localStorage.getItem("token"), chatid: chatid });
+            socket.current.emit("check-host", { token: localStorage.getItem("token"), chatid: chatid });
 
-            socket.on("host-verified", () => {
+            socket.current.on("host-verified", () => {
                 setIsHost(true);
             });
 
-            socket.on("kicked-out", () => {
+            socket.current.on("kicked-out", () => {
                 setUserWasKicked(true);
                 localStorage.removeItem("chatid");
             })
         }
 
         return () => {
-            socket.off("chat-data");
-            socket.off("new-message");
-            socket.off("host-verified");
-            socket.off("kicked-out");
-            socket.off("update-data");
-            socket.off("update-blacklist");
-            socket.disconnect();
+            socket.current?.off("chat-data");
+            socket.current?.off("new-message");
+            socket.current?.off("host-verified");
+            socket.current?.off("kicked-out");
+            socket.current?.off("update-data");
+            socket.current?.off("update-blacklist");
+            socket.current?.disconnect();
         };
     }, [user.id, chatid]);
 
 
     const handleSendMessage = (e: React.FormEvent) => {
         e.preventDefault();
-        const socket = io("http://localhost:9000");
-
-        socket.emit("sendMessage", {
+        socket.current?.emit("sendMessage", {
             chatid: chatid,
             text: inputValue,
             userId: user.id
@@ -137,29 +141,24 @@ const Chat = () => {
     }, [messages]);
 
     const handleKickOut = (userid: string) => {
-        const socket = io("http://localhost:9000");
-
         const data = {
             userid: userid,
             chatid: chatid,
             token: localStorage.getItem("token")
         }
-        socket.emit("kick-out", data);
+        socket.current?.emit("kick-out", data);
 
     }
 
     const RemoveFromBlackList = (userid: string) => {
-        const socket = io("http://localhost:9000");
-
         const data = {
             chatid: chatid,
             userid: userid,
             token: localStorage.getItem("token")
         }
-        socket.emit("remove-from-blacklist", data);
+        socket.current?.emit("remove-from-blacklist", data);
     }
-    console.log(usersinChat)
-    
+
     return (
         <>
             <section className="flex h-screen w-full">
