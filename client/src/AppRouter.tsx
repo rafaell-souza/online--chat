@@ -2,12 +2,12 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { lazy, Suspense } from 'react';
 import { ImSpinner8 } from "react-icons/im";
 
-const Explore = lazy(() => import('./pages/explore'));
-const NewRoom = lazy(() => import('./pages/newRoom'));
-const Chat = lazy(() => import('./pages/chat'));
+const Explore = lazy(() => import('./pages/Explore'));
+const CreateChat = lazy(() => import('./pages/CreateChat'));
+const Chat = lazy(() => import('./pages/Chat'));
 const Register = lazy(() => import('./pages/register'));
 const Login = lazy(() => import('./pages/login'));
-const Search = lazy(() => import('./pages/search'));
+const Search = lazy(() => import('./pages/Search'));
 const NotFound = lazy(() => import('./pages/NotFound'));
 
 import AuthComponent from './components/AuthComponent';
@@ -22,7 +22,7 @@ const AppRoutes = () => {
             }>
                 <Routes>
                     <Route path="/" element={<AuthComponent component={<Explore />} />} />
-                    <Route path="/new-room" element={<AuthComponent component={<NewRoom />} />} />
+                    <Route path="/new-room" element={<AuthComponent component={<CreateChat />} />} />
                     <Route path="/chat/:chatid" element={<AuthComponent component={<Chat />} />} />
                     <Route path="/register" element={<Register />} />
                     <Route path="/login" element={<Login />} />

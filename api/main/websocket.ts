@@ -8,12 +8,6 @@ import SocketConnectionValidation from "./middlewares/SocketConnectionValidation
 
 let usersSockets: { userid: string, socket: string }[] = [];
 
-// Add authentication middleware - complete
-// Improve input data validation and versatility - complete
-// Add input validation details on interface to the fianl user - complete
-// Add errors messages to the final user - complete
-// add logout functionality 
-
 io.use(SocketConnectionValidation);
 io.on("connection", (socket) => {
 

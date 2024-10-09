@@ -22,7 +22,7 @@ const Toolbar = ({ isSelected }: { isSelected: number }) => {
         fetchUser();
     }, []);
 
-    const chatid = localStorage.getItem("chatid");
+    const chatid = sessionStorage.getItem("chatid");
 
     const handleLogout = async () => {
         await fetch("http://localhost:9000/api/logout", {
@@ -44,22 +44,22 @@ const Toolbar = ({ isSelected }: { isSelected: number }) => {
             </div>
 
             <Link to={`/`}
-                className={`mt-6 text-white hover:bg-gray-900 border border-gray-900 rounded-lg text-xs flex items-center justify-center w-full h-7 ${isSelected === 0 ? "bg-gray-700" : "bg-gray-950"}`}>
+                className={`mt-6 text-white border border-gray-900 rounded-lg text-xs flex items-center justify-center w-full h-7 ${isSelected === 0 ? "bg-gray-700" : "hover:bg-gray-900 bg-gray-950"}`}>
                 EXPLORE
             </Link>
 
             <Link to="/new-room"
-                className={`text-white border hover:bg-gray-900 border-gray-900 text-xs flex rounded-lg items-center justify-center w-full h-7 ${isSelected === 1 ? "bg-gray-700" : "bg-gray-950"}`}>
+                className={`text-white border border-gray-900 text-xs flex rounded-lg items-center justify-center w-full h-7 ${isSelected === 1 ? "bg-gray-700" : "hover:bg-gray-900 bg-gray-950"}`}>
                 NEW ROOM
             </Link>
 
             <Link to={`${chatid ? `/chat/${chatid}` : "/"}`}
-                className={`text-white border border-gray-900 hover:bg-gray-900 rounded-lg text-xs flex items-center justify-center w-full h-7 ${isSelected === 2 ? "bg-gray-700" : "bg-gray-950"} ${chatid ? "" : "pointer-events-none opacity-40"}`}>
+                className={`text-white border border-gray-900 rounded-lg text-xs flex items-center justify-center w-full h-7 ${isSelected === 2 ? "bg-gray-700" : "hover:bg-gray-900 bg-gray-950"} ${chatid ? "" : "pointer-events-none opacity-40"}`}>
                 CHAT
             </Link>
 
             <Link to="/search"
-                className={`text-white border hover:bg-gray-900 border-gray-900 rounded-lg text-xs flex items-center justify-center w-full h-7 ${isSelected === 3 ? "bg-gray-700" : "bg-gray-950"}`}>
+                className={`text-white border border-gray-900 rounded-lg text-xs flex items-center justify-center w-full h-7 ${isSelected === 3 ? "bg-gray-700" : "hover:bg-gray-900 bg-gray-950"}`}>
                 SEARCH
             </Link>
 

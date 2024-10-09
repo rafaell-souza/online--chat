@@ -1,42 +1,9 @@
-import Toolbar from "../components/toolbar";
-import { useForm } from "react-hook-form"
-import chatSchema from "../schemas/chat";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useNavigate } from "react-router-dom";
+import Toolbar from "../../components/toolbar";
 import { MdError } from "react-icons/md";
+import CreateChatHelper from "./helper";
 
-type ChatData = {
-    name: string;
-    description: string;
-    capacity: number;
-    language: string;
-}
-
-const NewRoom = () => {
-    const {
-        register,
-        handleSubmit,
-        formState: { errors }
-    } = useForm<ChatData>({
-        resolver: zodResolver(chatSchema)
-    });
-    const navigate = useNavigate()
-
-    const handleSubmitForm = handleSubmit(async (data) => {
-        const response = await fetch("http://localhost:9000/api/chat", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${localStorage.getItem("token")}`
-            },
-            body: JSON.stringify(data)
-        })
-
-        const newChat = await response.json() as { chatid: string, newToken: string };
-        localStorage.setItem("token", newChat.newToken)
-        navigate(`/chat/${newChat.chatid}`)
-    })
-
+const CreateChat = () => {
+    const { handleSubmitForm, register, errors } = CreateChatHelper();
     return (
         <>
             <section className="flex h-screen w-full">
@@ -126,4 +93,4 @@ const NewRoom = () => {
     )
 }
 
-export default NewRoom;
+export default CreateChat;
