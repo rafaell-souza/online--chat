@@ -133,7 +133,7 @@ const Chat = () => {
                         {
                             isHost && blackList.length > 0 && (
                                 <>
-                                    <div className="bg-gray-800 text-white text-sm rounded px-2 py-1 mt-2">Blacklist</div>
+                                    <div className="bg-gray-800 text-white text-sm rounded px-2 py-1 mt-2">Black list</div>
                                     <div className="overflow-y-auto h-44 scrollbar">
                                         {
                                             blackList.map((userChat, index) => {

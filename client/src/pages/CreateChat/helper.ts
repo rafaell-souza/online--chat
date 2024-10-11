@@ -25,13 +25,12 @@ const CreateChatHelper = () => {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${localStorage.getItem("token")}`
+                "Authorization": `Bearer ${sessionStorage.getItem("token")}`
             },
             body: JSON.stringify(data)
         })
 
-        const newChat = await response.json() as { chatid: string, newToken: string };
-        localStorage.setItem("token", newChat.newToken)
+        const newChat = await response.json() as { chatid: string };
         navigate(`/chat/${newChat.chatid}`)
     })
 

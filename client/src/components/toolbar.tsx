@@ -13,7 +13,7 @@ const Toolbar = ({ isSelected }: { isSelected: number }) => {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
-                    "Authorization": `Bearer ${localStorage.getItem("token")}`
+                    "Authorization": `Bearer ${sessionStorage.getItem("token")}`
                 }
             });
             const data = await response.json();
@@ -29,10 +29,10 @@ const Toolbar = ({ isSelected }: { isSelected: number }) => {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${localStorage.getItem("token")}`
+                "Authorization": `Bearer ${sessionStorage.getItem("token")}`
             }
         })
-        localStorage.removeItem("token");
+        sessionStorage.removeItem("token");
     };
 
     return (
@@ -66,7 +66,7 @@ const Toolbar = ({ isSelected }: { isSelected: number }) => {
             <Link 
             to="/login"
             onClick={handleLogout}
-                className="text-white rounded-lg text-xs flex items-center justify-center w-full h-7 bg-gray-950 border border-gray-900 hover:bg-gray-900 absolute bottom-4 w-36">
+                className="text-white rounded-lg text-xs flex items-center justify-center w-full h-7 bg-gray-950 border border-gray-900 hover:bg-gray-900 mt-28">
                 LOGOUT
             </Link>
 

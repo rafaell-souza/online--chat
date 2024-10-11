@@ -11,7 +11,7 @@ const Explore = () => {
             <section className="flex h-screen w-full">
                 <Toolbar isSelected={0} />
 
-                <section className="w-full px-4 border py-6 flex flex-col">
+                <section className="w-full px-4 py-6 flex flex-col">
 
                     {
                         !userActiveChat && chats.length === 0 ? (

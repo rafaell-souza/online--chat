@@ -28,7 +28,7 @@ export default class LoginUser {
         const secret = process.env.JWT_SECRET!
 
         const token = jwt.sign({ id: isUserRegistered.id }, secret, {
-            expiresIn: "1d",
+            expiresIn: "12h",
         });
 
         return res.status(200).json({ token });

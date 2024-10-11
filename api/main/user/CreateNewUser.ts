@@ -31,7 +31,7 @@ export default class CreateNewUser {
         const secret = process.env.JWT_SECRET!
 
         const token = jwt.sign({ id: newUser.id }, secret, {
-            expiresIn: "1d",
+            expiresIn: "12h",
         });
 
         return res.status(201).json({ token });

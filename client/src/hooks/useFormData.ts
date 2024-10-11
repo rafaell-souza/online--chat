@@ -40,7 +40,7 @@ const useFormData = <T extends FieldValues>(
 
             else {
                 const data = await response.json();
-                localStorage.setItem("token", data.token);
+                sessionStorage.setItem("token", data.token);
                 setLoading(false);
                 navigate("/");
             }

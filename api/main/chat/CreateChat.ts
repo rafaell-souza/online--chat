@@ -38,11 +38,9 @@ export default class CreateChat {
         }
 
         const newChatId = await chatCases.createChat(chatData);
-        const newToken = jwt.sign({ id: user.id, hostFor: newChatId }, process.env.JWT_SECRET!);
 
         return res.status(201).json({
             chatid: newChatId,
-            newToken: newToken
         });
     }   
 }

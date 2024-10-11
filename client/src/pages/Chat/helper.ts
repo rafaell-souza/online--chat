@@ -30,7 +30,7 @@ interface ChatData {
     users: User[];
     blackList: BlackList[];
 }
-   
+
 const ChatHelper = () => {
     const [messages, setMessages] = useState<Message[]>([]);
     const [usersinChat, setUsersInChat] = useState<User[]>([]);
@@ -54,7 +54,7 @@ const ChatHelper = () => {
     useEffect(() => {
         socket.current = io("http://localhost:9000", {
             auth: {
-                token: localStorage.getItem("token")
+                token: sessionStorage.getItem("token")
             }
         });
 
@@ -72,8 +72,9 @@ const ChatHelper = () => {
                 );
 
                 const myIndex = data.users.findIndex(u => u.id === user.id);
-
-                [data.users[0], data.users[myIndex]] = [data.users[myIndex], data.users[0]];
+                if (myIndex !== 0) {
+                    [data.users[0], data.users[myIndex]] = [data.users[myIndex], data.users[0]];
+                }
 
                 setUsersInChat(data.users);
 
@@ -81,8 +82,14 @@ const ChatHelper = () => {
             });
 
             socket.current.on("update-data", (data: ChatData) => {
+                const myIndex = data.users.findIndex(u => u.id === user.id);
+
+                if (myIndex !== 0) {
+                    [data.users[0], data.users[myIndex]] = [data.users[myIndex], data.users[0]];
+                }
+
                 setUsersInChat(data.users);
-            })
+            });
 
             socket.current.on("update-blacklist", (data: BlackList[]) => {
                 setBlackList(data);
@@ -95,7 +102,7 @@ const ChatHelper = () => {
                 }]);
             });
 
-            socket.current.emit("check-host", { token: localStorage.getItem("token"), chatid: chatid });
+            socket.current.emit("check-host", { userid: user.id, chatid: chatid });
 
             socket.current.on("host-verified", () => {
                 setIsHost(true);
@@ -138,21 +145,23 @@ const ChatHelper = () => {
         }
     }, [messages]);
 
-    const handleKickOut = (userid: string) => {
+    const handleKickOut = (kickid: string) => {
         const data = {
-            userid: userid,
             chatid: chatid,
-            token: localStorage.getItem("token")
+            kickid: kickid,
+            userid: user.id,
+            token: sessionStorage.getItem("token")
         }
         socket.current?.emit("kick-out", data);
 
     }
 
-    const RemoveFromBlackList = (userid: string) => {
+    const RemoveFromBlackList = (kickid: string) => {
         const data = {
             chatid: chatid,
-            userid: userid,
-            token: localStorage.getItem("token")
+            kickid: kickid,
+            userid: user.id,
+            token: sessionStorage.getItem("token")
         }
         socket.current?.emit("remove-from-blacklist", data);
     }
